@@ -91,7 +91,7 @@ release: all
 all: build_subprojects $(BIN_NAME)
 
 test : build_subprojects $(BIN_NAME)
-	./$(BIN_NAME)
+	./$(BIN_NAME) maps/speyer/speyer_west.osm
 
 clean: build_subprojects
 	rm -rf $(BIN_NAME)

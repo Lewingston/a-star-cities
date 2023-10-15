@@ -17,7 +17,7 @@ RoadRenderer::RoadRenderer(const Road& road) :
     const std::vector<std::reference_wrapper<const Node>>& nodes = road.getNodes();
     for (std::size_t ii = 0; ii < nodes.size(); ii++) {
         const auto [posX, posY] = nodes.at(ii).get().getLocalPosition();
-        line[ii].position = sf::Vector2f(static_cast<float>(posX) + 200, static_cast<float>(posY) + 200);
+        line[ii].position = sf::Vector2f(static_cast<float>(posX), static_cast<float>(posY));
         line[ii].color = sf::Color::Black;
     }
 }

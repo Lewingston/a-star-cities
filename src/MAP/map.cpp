@@ -28,16 +28,7 @@ void Map::setGlobalBounds(double minlat, double maxlat, double minlon, double ma
 
 void Map::addRoad(const Road& road) {
 
-    std::vector<std::reference_wrapper<const Node>> nodes;
-
-    for (const Node& node : road.getNodes()) {
-        const Node* newNode = addNode(node);
-        if (newNode != nullptr) {
-            nodes.push_back(*newNode);
-        } else {
-            std::cerr << "Map - Error: Unable to create new node - id: " << node.getId();
-        }
-    }
+    std::vector<std::reference_wrapper<const Node>> nodes = addNodes(road.getNodes());
 
     const auto [roadIterator, success] = roads.insert({road.getId(), road});
     if (success) {
@@ -45,6 +36,34 @@ void Map::addRoad(const Road& road) {
     } else {
         std::cerr << "Map - Error: Unable to insert new road - id: " << road.getId() << std::endl;
     }
+}
+
+void Map::addBuilding(const Building& building) {
+
+    std::vector<std::reference_wrapper<const Node>> nodes = addNodes(building.getNodes());
+
+    const auto [buildingIterator, success] = buildings.insert({building.getId(), building});
+    if (success) {
+        buildingIterator->second.replaceNodes(nodes);
+    } else {
+        std::cerr << "Map - Error: Unable to insert new building - id: " << building.getId() << std::endl;
+    }
+}
+
+std::vector<std::reference_wrapper<const Node>> Map::addNodes(const std::vector<std::reference_wrapper<const Node>>& nodes) {
+
+    std::vector<std::reference_wrapper<const Node>> returnNodes;
+
+    for (const Node& node : nodes) {
+        const Node* newNode = addNode(node);
+        if (newNode != nullptr) {
+            returnNodes.push_back(*newNode);
+        } else {
+            std::cerr << "Map - Error: Unable to create new node - id: " << node.getId();
+        }
+    }
+
+    return returnNodes;
 }
 
 const Node* Map::addNode(const Node& node) {

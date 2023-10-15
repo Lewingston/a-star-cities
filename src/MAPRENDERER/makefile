@@ -1,6 +1,7 @@
 
 C_FILES = maprenderer.cpp \
-          roadrenderer.cpp
+          roadrenderer.cpp \
+          buildingrenderer.cpp
 
 SRC_DIR = ./
 

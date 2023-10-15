@@ -33,12 +33,18 @@ namespace AStarCities {
 
             void parseNodes(const pugi::xml_document& xml);
 
-            void parseRoads(const pugi::xml_document& xml);
-            void parseRoad(const pugi::xml_node& node);
-            std::string getRoadName(const pugi::xml_node& node);
+            void parseRoadsAndBuildings(const pugi::xml_document& xml);
 
+            void parseRoad(const pugi::xml_node& node);
             [[nodiscard]] bool checkIfWayNodeIsHighway(const pugi::xml_node& wayNode) const;
             [[nodiscard]] bool checkHighwayType(const std::string& highwayType) const;
+            [[nodiscard]] std::string getRoadName(const pugi::xml_node& node) const;
+
+            void parseBuilding(const pugi::xml_node& xml);
+            [[nodiscard]] bool checkIfWayNodeIsBuilding(const pugi::xml_node& buildingNode) const;
+            [[nodiscard]] bool checkBuildingType(const std::string& buildingType) const;
+
+            [[nodiscard]] pugi::xml_node getNodeByKeyAttribute(const pugi::xml_node& node, const std::string& key) const;
 
             std::shared_ptr<Map> map;
 

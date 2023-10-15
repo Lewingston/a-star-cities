@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/ConvexShape.hpp"
 
 #include <memory>
 
@@ -11,21 +11,21 @@ namespace sf {
 
 namespace AStarCities {
 
-    class Road;
+    class Building;
 
-    class RoadRenderer {
+    class BuildingRenderer {
 
         public:
 
-            RoadRenderer(const Road& road);
-            virtual ~RoadRenderer() = default;
+            BuildingRenderer(const Building& building);
+            virtual ~BuildingRenderer() = default;
 
             void draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf::Transform& transform);
 
         private:
 
-            const Road& road;
+            const Building& building;
 
-            sf::VertexArray line;
+            sf::ConvexShape shape;
     };
 }

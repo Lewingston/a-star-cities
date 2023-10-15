@@ -3,7 +3,9 @@
 
 #include "MAP/map.h"
 
-#include "SFML/Graphics.hpp"
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/Event.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
 
 #include <iostream>
 
@@ -11,11 +13,12 @@ using namespace AStarCities;
 
 void MapRenderer::openWindow() {
 
-    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(1400u, 1400u)), "A* Cities"));
+    globalTransform.translate(sf::Vector2f(700, 200));
+
+    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(2400u, 1400u)), "A* Cities"));
     window->setFramerateLimit(60);
     window->clear(sf::Color::White);
     window->display();
-
 }
 
 void MapRenderer::setMap(std::shared_ptr<Map> map) {
@@ -26,6 +29,22 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
         const Road& road = pair.second;
         roads.push_back(RoadRenderer(road));
     }
+
+    for (const auto& pair : map->getBuildings()) {
+        const Building& building = pair.second;
+        buildings.push_back(BuildingRenderer(building));
+    }
+
+    createBoundingBox(static_cast<float>(map->getLocalWidth()), static_cast<float>(map->getLocalHeight()));
+}
+
+void MapRenderer::createBoundingBox(float width, float height) {
+    boundingBox.clear();
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0), sf::Color::Red));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, 0), sf::Color::Red));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, height), sf::Color::Red));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, height), sf::Color::Red));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0), sf::Color::Red));
 }
 
 void MapRenderer::runSimulation() {
@@ -65,8 +84,16 @@ void MapRenderer::handleEvents() {
 }
 
 void MapRenderer::handleKeyPress(const sf::Event& event) {
-    if (event.key.code == sf::Keyboard::Enter) {
-
+    switch (event.key.code) {
+        case sf::Keyboard::R:
+        case sf::Keyboard::S:
+            showRoads = !showRoads;
+            break;
+        case sf::Keyboard::B:
+            showBuildings = !showBuildings;
+            break;
+        default:
+            break;
     }
 }
 
@@ -79,7 +106,7 @@ void MapRenderer::handleMouseWheel(const sf::Event& event) {
 
         const float mouseX = static_cast<float>(event.mouseWheelScroll.x);
         const float mouseY = static_cast<float>(event.mouseWheelScroll.y);
-        
+
         const sf::Transform invert = globalTransform.getInverse();
         const sf::Vector2f mouseVector = invert.transformPoint(sf::Vector2f(mouseX, mouseY));
 
@@ -121,16 +148,19 @@ void MapRenderer::drawMap() {
 
     window->clear(sf::Color::White);
 
-    sf::RectangleShape rect(sf::Vector2f(static_cast<float>(map->getLocalWidth()), static_cast<float>(map->getLocalHeight())));
-    rect.setPosition(sf::Vector2f(200, 200));
-    rect.setOutlineThickness(1);
-    rect.setOutlineColor(sf::Color::Red);
-    rect.setFillColor(sf::Color::White);
-    window->draw(rect, globalTransform);
-
-    for (RoadRenderer& road : roads) {
-        road.draw(window, globalTransform);
+    if (showRoads) {
+        for (RoadRenderer& road : roads) {
+            road.draw(window, globalTransform);
+        }
     }
+
+    if (showBuildings) {
+        for (BuildingRenderer& building : buildings) {
+            building.draw(window, globalTransform);
+        }
+    }
+
+    window->draw(&boundingBox[0], boundingBox.size(), sf::PrimitiveType::LineStrip, globalTransform);
 
     window->display();
 }

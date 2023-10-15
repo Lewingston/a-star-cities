@@ -1,8 +1,10 @@
 #pragma once
 
 #include "RoadRenderer.h"
+#include "BuildingRenderer.h"
 
 #include "SFML/Graphics/Transform.hpp"
+//#include "SFML/Graphics/VertexArray.hpp"
 
 #include <memory>
 #include <vector>
@@ -31,6 +33,8 @@ namespace AStarCities {
 
         private:
 
+            void createBoundingBox(float width, float height);
+
             void handleEvents();
             void handleKeyPress(const sf::Event& event);
             void handleMouseWheel(const sf::Event& event);
@@ -46,12 +50,18 @@ namespace AStarCities {
             std::shared_ptr<Map> map;
 
             std::vector<RoadRenderer> roads;
+            std::vector<BuildingRenderer> buildings;
 
             sf::Transform globalTransform;
+
+            std::vector<sf::Vertex> boundingBox;
 
             bool dragMouse = false;
             int oldX = 0;
             int oldY = 0;
             float zoom = 1.0f;
+
+            bool showBuildings = true;
+            bool showRoads = true;
     };
 }
