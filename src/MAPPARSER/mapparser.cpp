@@ -43,28 +43,40 @@ void MapParser::parseMap(const std::string& mapData) {
 
     std::cout << "Map node count: " << map->getNodes().size() << std::endl;
     std::cout << "Map road count: " << map->getRoads().size() << std::endl;
-
-
-
 }
 
 void MapParser::parseGlobalBounds(const pugi::xml_document& xml) {
     pugi::xml_node boundsNode = xml.child("osm").child("bounds");
+    if (!boundsNode) {
+        guessBoundings = true;
+        return;
+    }
     const double minlat = boundsNode.attribute("minlat").as_double();
     const double minlon = boundsNode.attribute("minlon").as_double();
     const double maxlat = boundsNode.attribute("maxlat").as_double();
     const double maxlon = boundsNode.attribute("maxlon").as_double();
     map->setGlobalBounds(minlat, maxlat, minlon, maxlon);
-    //map->setGlobalBounds(48.1,48.2,11.5,11.6);
 }
 
 void MapParser::parseNodes(const pugi::xml_document& xml) {
     for (pugi::xml_node node : xml.child("osm").children("node")) {
-        uint64_t id = node.attribute("id").as_ullong();
-        double lat = node.attribute("lat").as_double();
-        double lon = node.attribute("lon").as_double();
+
+        const uint64_t id = node.attribute("id").as_ullong();
+        const double lat = node.attribute("lat").as_double();
+        const double lon = node.attribute("lon").as_double();
+
+        if (lat < minLat) minLat = lat;
+        else if (lat > maxLat) maxLat = lat;
+        if (lon < minLon) minLon = lon;
+        else if (lon > maxLon) maxLon = lon;
+
         allNodes.insert({id, Node(id, lat, lon)});
     }
+
+    if (guessBoundings) {
+        map->setGlobalBounds(minLat, maxLat, minLon, maxLon);
+    }
+
     std::cout << "All nodes count: " << allNodes.size() << std::endl;
 }
 
@@ -91,7 +103,6 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
     }
 
     map->addRoad(road);
-
 }
 
 std::string MapParser::getRoadName(const pugi::xml_node& roadNode) {
@@ -145,11 +156,13 @@ bool MapParser::checkHighwayType(const std::string& highwayType) const {
         "bridleway", // reitweg
         "crossing",
         "platform",
+        "rest_area",
         "steps",
         "construction",
         "bus_stop",
         "corridor",
         "elevator",
+        "proposed",
         "unclassified"
     };
 
@@ -161,6 +174,7 @@ bool MapParser::checkHighwayType(const std::string& highwayType) const {
         "cycleway",
         "pedestrian",
         "platform"*/
+        "proposed"
     };
 
     if (std::find(std::begin(types), std::end(types), highwayType) != std::end(types)) {

@@ -30,7 +30,9 @@ namespace AStarCities {
         private:
 
             void parseGlobalBounds(const pugi::xml_document& xml);
+
             void parseNodes(const pugi::xml_document& xml);
+
             void parseRoads(const pugi::xml_document& xml);
             void parseRoad(const pugi::xml_node& node);
             std::string getRoadName(const pugi::xml_node& node);
@@ -41,6 +43,13 @@ namespace AStarCities {
             std::shared_ptr<Map> map;
 
             std::map<uint64_t, Node> allNodes;
+
+            bool guessBoundings = false;
+
+            double minLat = 90;
+            double maxLat = 0;
+            double minLon = 180;
+            double maxLon = 0;
 
     };
 }
