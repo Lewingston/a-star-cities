@@ -1,4 +1,18 @@
 
+################################################################################
+#                               LIBRARY PATHS                                  #
+################################################################################
+
+LIB_DIR = ../libs/
+
+export SFML_DIR    = $(LIB_DIR)SFML-2.6.0/
+export PUGIXML_DIR = $(LIB_DIR)pugixml-1.14/
+export EARCUT_DIR  = $(LIB_DIR)earcut.hpp-2.2.4/
+
+################################################################################
+#                            BINARY AND ARCHIVES                               #
+################################################################################
+
 BIN_NAME = astarcities.exe
 
 ARCHIVE_FILES = obj/CLIENT/client.a \
@@ -6,7 +20,7 @@ ARCHIVE_FILES = obj/CLIENT/client.a \
                 obj/MAPPARSER/mapparser.a \
                 obj/MAPRENDERER/maprenderer.a \
                 obj/MAP/map.a \
-                ../libs/pugixml-1.14/build/make-g++-debug-standard-c++11/src/pugixml.cpp.o
+                $(PUGIXML_DIR)build/make-g++-debug-standard-c++11/src/pugixml.cpp.o
 
 ################################################################################
 #                                 TOOLS                                        #
@@ -65,7 +79,7 @@ endif
 #                               LINKER FLAGS                                   #
 ################################################################################
 
-SFML_LINKER_FLAGS = -L../libs/SFML-2.6.0/lib \
+SFML_LINKER_FLAGS = -L$(SFML_DIR)lib \
                     -lsfml-network-s \
                     -lsfml-graphics-s \
                     -lsfml-window-s \
