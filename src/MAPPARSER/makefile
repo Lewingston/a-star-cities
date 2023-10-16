@@ -17,6 +17,6 @@ clean:
 INCLUDE_FLAGS =
 
 INCLUDE_FLAGS = -I../ \
-                -I../../../libs/pugixml-1.14/src/
+                -I../../$(PUGIXML_DIR)src/
 
 include ../comCppMak.mak
