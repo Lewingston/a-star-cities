@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/ConvexShape.hpp"
 
 #include <memory>
 
@@ -29,5 +30,7 @@ namespace AStarCities {
             const Building& building;
 
             sf::VertexArray shape;
+
+            std::vector<sf::ConvexShape> innerShapes;
     };
 }

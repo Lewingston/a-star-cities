@@ -15,7 +15,7 @@ std::string MapParser::loadFromFile(const std::string& filePath) const {
 
     std::ifstream fileStream(filePath);
     if (!fileStream.is_open()) {
-        std::cerr << "Failed to read file " << filePath << std::endl;
+        std::cerr << "Parser - Failed to read file " << filePath << std::endl;
         return "";
     }
 
@@ -31,7 +31,7 @@ void MapParser::parseMap(const std::string& mapData) {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_string(mapData.c_str());
     if (!result) {
-        std::cerr << "Failed to parse xml" << std::endl;
+        std::cerr << "Parser - Failed to parse xml" << std::endl;
         return;
     }
 
@@ -82,11 +82,20 @@ void MapParser::parseNodes(const pugi::xml_document& xml) {
 }
 
 void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
+
     for (pugi::xml_node node : xml.child("osm").children("way")) {
-        if (checkIfWayNodeIsHighway(node)) {
+        if (checkIfXmlNodeIsHighway(node)) {
             parseRoad(node);
-        } else if (checkIfWayNodeIsBuilding(node)) {
+        } else if (checkIfXmlNodeIsBuilding(node)) {
             parseBuilding(node);
+        } else {
+            parseOtherWay(node);
+        }
+    }
+
+    for (pugi::xml_node node : xml.child("osm").children("relation")) {
+        if (checkIfXmlNodeIsBuilding(node)) {
+            parseComplexBuilding(node);
         }
     }
 }
@@ -95,16 +104,7 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
 
     Road road = Road(node.attribute("id").as_ullong(), getRoadName(node));
 
-    // TODO: this code is duplicate; move to separate function
-    for (pugi::xml_node nodes : node.children("nd")) {
-        const uint64_t nodeId = nodes.attribute("ref").as_ullong();
-        auto nodeIterator = allNodes.find(nodeId);
-        if (nodeIterator != allNodes.end()) {
-            road.addNode(nodeIterator->second);
-        } else {
-            std::cout << "Parser - Error: Unable to find node '" << nodeId << "' for raod: " << road.getId() << std::endl;
-        }
-    }
+    road.setNodes(getNodesFromWay(node));
 
     map->addRoad(road);
 }
@@ -113,31 +113,80 @@ void MapParser::parseBuilding(const pugi::xml_node& node) {
 
     Building building = Building(node.attribute("id").as_ullong());
 
-    // TODO: this code is duplicate; move to separate function
-    for (pugi::xml_node nodes: node.children("nd")) {
-        const uint64_t nodeId = nodes.attribute("ref").as_ullong();
-        auto nodeIterator = allNodes.find(nodeId);
-        if (nodeIterator != allNodes.end()) {
-            building.addNode(nodeIterator->second);
-        } else {
-            std::cout << "Parser - Error: Unable to find node '" << nodeId << "' for building: " << building.getId() << std::endl;
+    building.setNodes(getNodesFromWay(node));
+
+    // some buildings can also be the inner shape of an other building
+    const auto [iterator, success] = otherWays.insert({building.getId(), building.getNodes()});
+    if (!success)
+        std::cerr << "Parser - Failed to save building as other way id: " << iterator->first << std::endl;
+
+    map->addBuilding(building);
+}
+
+void MapParser::parseComplexBuilding(const pugi::xml_node& node) {
+
+    Building building = Building(node.attribute("id").as_ullong());
+
+    bool outerNodeFound = false;
+
+    for (const pugi::xml_node& refNode : node.children("member")) {
+        const std::string type = refNode.attribute("type").as_string();
+        if (type == "way") {
+
+            uint64_t refId = refNode.attribute("ref").as_ullong();
+            auto wayIterator = otherWays.find(refId);
+
+            if (wayIterator != otherWays.end()) {
+                const std::string role = refNode.attribute("role").as_string();
+                if (role == "outer" && outerNodeFound == false) {
+                    building.setNodes(wayIterator->second);
+                    outerNodeFound = true;
+                } else if (role == "inner") {
+                    building.addInnerShapeNodes(wayIterator->second);
+                } else if (outerNodeFound == true) {
+                    std::cerr << "Parser - Building (" << building.getId() << ") has multiple outer shapes." << std::endl;
+                    return;
+                } else {
+                    std::cerr << "Parser - Unknown reference node (" << refId << ") role: " << role << std::endl;
+                    return;
+                }
+            } else {
+                std::cerr << "Parser - Unable to find other way with id: " << refId << std::endl;
+                return;
+            }
         }
+    }
+
+    if (outerNodeFound == false) {
+        std::cerr << " Parser - Building has no outer shape id : " << building.getId() << std::endl;
+        return;
     }
 
     map->addBuilding(building);
 }
 
+void MapParser::parseOtherWay(const pugi::xml_node& node) {
+
+    uint64_t wayId = node.attribute("id").as_ullong();
+
+    const auto [iterator, success] = otherWays.insert({wayId, getNodesFromWay(node)});
+    if (!success) {
+        std::cerr << "Failed to insert new unknown way - id: " << wayId << std::endl;
+    }
+
+}
+
 std::string MapParser::getRoadName(const pugi::xml_node& roadNode) const {
-    pugi::xml_node nameNode = getNodeByKeyAttribute(roadNode, "name");
+    pugi::xml_node nameNode = getXmlNodeByKeyAttribute(roadNode, "name");
     if (!nameNode)
         return "";
     else
         return nameNode.attribute("v").as_string();
 }
 
-bool MapParser::checkIfWayNodeIsHighway(const pugi::xml_node& wayNode) const {
+bool MapParser::checkIfXmlNodeIsHighway(const pugi::xml_node& wayNode) const {
 
-    pugi::xml_node highwayTypeNode = getNodeByKeyAttribute(wayNode, "highway");
+    pugi::xml_node highwayTypeNode = getXmlNodeByKeyAttribute(wayNode, "highway");
     if (!highwayTypeNode)
         return false;
 
@@ -145,9 +194,9 @@ bool MapParser::checkIfWayNodeIsHighway(const pugi::xml_node& wayNode) const {
     return checkHighwayType(highwayType);
 }
 
-bool MapParser::checkIfWayNodeIsBuilding(const pugi::xml_node& buildingNode) const {
+bool MapParser::checkIfXmlNodeIsBuilding(const pugi::xml_node& buildingNode) const {
 
-    pugi::xml_node buildingTypeNode = getNodeByKeyAttribute(buildingNode, "building");
+    pugi::xml_node buildingTypeNode = getXmlNodeByKeyAttribute(buildingNode, "building");
     if (!buildingTypeNode)
         return false;
 
@@ -155,7 +204,21 @@ bool MapParser::checkIfWayNodeIsBuilding(const pugi::xml_node& buildingNode) con
     return checkBuildingType(buildingType);
 }
 
-pugi::xml_node MapParser::getNodeByKeyAttribute(const pugi::xml_node& node, const std::string& key) const {
+std::vector<std::reference_wrapper<const Node>> MapParser::getNodesFromWay(const pugi::xml_node& xmlNode) const {
+    std::vector<std::reference_wrapper<const Node>> nodes;
+    for (pugi::xml_node node: xmlNode.children("nd")) {
+        const uint64_t nodeId = node.attribute("ref").as_ullong();
+        auto nodeIterator = allNodes.find(nodeId);
+        if (nodeIterator != allNodes.end()) {
+            nodes.push_back(nodeIterator->second);
+        } else {
+            std::cerr << "Parser - Error: Unable to find node '" << nodeId << "' in xml Node: " << xmlNode.attribute("id").as_string() << std::endl;
+        }
+    }
+    return nodes;
+}
+
+pugi::xml_node MapParser::getXmlNodeByKeyAttribute(const pugi::xml_node& node, const std::string& key) const {
     for (pugi::xml_node tagNode : node.children("tag")) {
         const std::string keyAttr = tagNode.attribute("k").as_string();
         if (keyAttr == key) {

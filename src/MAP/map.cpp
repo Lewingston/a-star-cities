@@ -32,7 +32,7 @@ void Map::addRoad(const Road& road) {
 
     const auto [roadIterator, success] = roads.insert({road.getId(), road});
     if (success) {
-        roadIterator->second.replaceNodes(nodes);
+        roadIterator->second.setNodes(nodes);
     } else {
         std::cerr << "Map - Error: Unable to insert new road - id: " << road.getId() << std::endl;
     }
@@ -42,9 +42,15 @@ void Map::addBuilding(const Building& building) {
 
     std::vector<std::reference_wrapper<const Node>> nodes = addNodes(building.getNodes());
 
+    std::vector<std::vector<std::reference_wrapper<const Node>>> innerShapes;
+    for (const std::vector<std::reference_wrapper<const Node>>& shape : building.getInnerShapeNodes()) {
+        innerShapes.push_back(addNodes(shape));
+    }
+
     const auto [buildingIterator, success] = buildings.insert({building.getId(), building});
     if (success) {
-        buildingIterator->second.replaceNodes(nodes);
+        buildingIterator->second.setNodes(nodes);
+        buildingIterator->second.setInnerShapeNodes(innerShapes);
     } else {
         std::cerr << "Map - Error: Unable to insert new building - id: " << building.getId() << std::endl;
     }

@@ -9,6 +9,8 @@
 
 #include "mapbox/earcut.hpp"
 
+#include <iostream>
+
 using namespace AStarCities;
 
 BuildingRenderer::BuildingRenderer(const Building& building) :
@@ -19,6 +21,8 @@ BuildingRenderer::BuildingRenderer(const Building& building) :
 
 void BuildingRenderer::draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf::Transform& transform) {
     renderTarget->draw(shape, transform);
+    for (const auto& shape : innerShapes)
+        renderTarget->draw(shape, transform);
 }
 
 void BuildingRenderer::generateShape() {
@@ -34,6 +38,14 @@ void BuildingRenderer::generateShape() {
     }
 
     // add optional inner shapes
+    for (const std::vector<std::reference_wrapper<const Node>>& shape : building.getInnerShapeNodes()) {
+        points.push_back({});
+        std::vector<std::array<double, 2>> innerShape;
+        for (std::size_t ii = 0; ii < shape.size() - 1; ii++) {
+            const auto [posX, posY] = shape.at(ii).get().getLocalPosition();
+            points.back().push_back({posX, posY});
+        }
+    }
 
     // run tessellation
     std::vector<uint32_t> indices = mapbox::earcut<uint32_t>(points);
@@ -43,7 +55,16 @@ void BuildingRenderer::generateShape() {
 
     // create vertex array
     for (std::size_t ii = 0; ii < indices.size(); ii++) {
-        const auto [posX, posY] = nodes.at(indices.at(ii)).get().getLocalPosition();
+
+        std::size_t indexX = 0;
+        std::size_t indexY = indices.at(ii);
+
+        while (indexY >= points.at(indexX).size()) {
+            indexY -= points.at(indexX).size();
+            indexX++;
+        }
+
+        const auto [posX, posY] = points.at(indexX).at(indexY);
         shape[ii].position = sf::Vector2f(static_cast<float>(posX), static_cast<float>(posY));
         shape[ii].color = sf::Color(128, 128, 128);
     }
