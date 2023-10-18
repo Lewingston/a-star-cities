@@ -16,8 +16,7 @@ namespace AStarCities {
 
             virtual ~Road() = default;
 
-            void addNode(const Node& node);
-            void replaceNodes(const std::vector<std::reference_wrapper<const Node>>& nodes);
+            void setNodes(const std::vector<std::reference_wrapper<const Node>>& nodes);
 
             [[nodiscard]] uint64_t getId() const noexcept { return id; }
             [[nodiscard]] std::string getName() const noexcept { return name; }
