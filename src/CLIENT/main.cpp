@@ -21,8 +21,6 @@ int main(int argc, char** args) {
     MapParser parser;
     parser.parseMap(parser.loadFromFile(osmFilePath));
 
-    std::shared_ptr<Map> map = parser.getMap();
-
     renderer.setMap(parser.getMap());
     renderer.runSimulation();
 
