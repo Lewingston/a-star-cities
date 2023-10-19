@@ -8,6 +8,7 @@
 #include <sstream>
 #include <array>
 #include <algorithm>
+#include <set>
 
 using namespace AStarCities;
 
@@ -83,30 +84,56 @@ void MapParser::parseNodes(const pugi::xml_document& xml) {
 
 void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
 
-    for (pugi::xml_node node : xml.child("osm").children("way")) {
+    for (const pugi::xml_node& node : xml.child("osm").children("way")) {
         if (checkIfXmlNodeIsHighway(node)) {
             parseRoad(node);
-        } else if (checkIfXmlNodeIsBuilding(node)) {
-            parseBuilding(node);
+        }/* else if (checkIfXmlNodeIsBuilding(node)) {
+            //parseBuilding(node);
         } else {
-            parseOtherWay(node);
-        }
+            //parseOtherWay(node);
+        }*/
     }
 
-    for (pugi::xml_node node : xml.child("osm").children("relation")) {
+    /*for (const pugi::xml_node& node : xml.child("osm").children("relation")) {
         if (checkIfXmlNodeIsBuilding(node)) {
-            parseComplexBuilding(node);
+            if (checkIfBuildingHasMultipleOuterNodes(node)) {
+                if (checkIfBuildingHasNoInnerNodes(node)) {
+                    parseMultipleBuildings(node);
+                } else {
+                    std::cerr << "Parser - Building has multiple outer shapes and inner shapes - " << node.attribute("id").as_ullong() << std::endl;
+                }
+            } else {
+                parseComplexBuilding(node);
+            }
         }
-    }
+    }*/
 }
 
 void MapParser::parseRoad(const pugi::xml_node& node) {
 
-    Road road = Road(node.attribute("id").as_ullong(), getRoadName(node));
+    static const std::set<RoadType::Type> allowTypes = {
+        RoadType::MOTORWAY,
+        RoadType::TRUNK,
+        RoadType::PRIMARY,
+        RoadType::SECONDARY,
+        RoadType::TERTIARY,
+        RoadType::UNCLASSIFIED,
+        RoadType::RESIDENTIAL,
+        RoadType::MOTORWAY_LINK,
+        RoadType::TRUNK_LINK,
+        RoadType::PRIMARY_LINK,
+        RoadType::SECONDARY_LINK,
+        RoadType::TERTIARY_LINK
+    };
 
-    road.setNodes(getNodesFromWay(node));
+    const uint64_t id = node.attribute("id").as_ullong();
+    const RoadType type = getRoadType(node);
 
-    map->addRoad(road);
+    if (allowTypes.contains(type.getType())) {
+        Road road = Road(id, getRoadName(node), type);
+        road.setNodes(getNodesFromWay(node));
+        map->addRoad(road);
+    }
 }
 
 void MapParser::parseBuilding(const pugi::xml_node& node) {
@@ -121,6 +148,22 @@ void MapParser::parseBuilding(const pugi::xml_node& node) {
         std::cerr << "Parser - Failed to save building as other way id: " << iterator->first << std::endl;
 
     map->addBuilding(building);
+}
+
+void MapParser::parseMultipleBuildings(const pugi::xml_node& xml) {
+
+    for (const pugi::xml_node& node : xml) {
+        const std::string& type = node.attribute("type").as_string();
+        const std::string& role = node.attribute("role").as_string();
+        const uint64_t refId = node.attribute("ref").as_ullong();
+        if (type == "way" && role == "outer") {
+            if (auto search = otherWays.find(refId); search != otherWays.end()) {
+
+            } else {
+                std::cerr << "Parser - Unable to building reference: " << refId << std::endl;
+            }
+        }
+    }
 }
 
 void MapParser::parseComplexBuilding(const pugi::xml_node& node) {
@@ -184,6 +227,14 @@ std::string MapParser::getRoadName(const pugi::xml_node& roadNode) const {
         return nameNode.attribute("v").as_string();
 }
 
+RoadType MapParser::getRoadType(const pugi::xml_node& roadNode) const {
+    pugi::xml_node typeNode = getXmlNodeByKeyAttribute(roadNode, "highway");
+    if (!typeNode)
+        return RoadType();
+    else
+        return RoadType(typeNode.attribute("v").as_string());
+}
+
 bool MapParser::checkIfXmlNodeIsHighway(const pugi::xml_node& wayNode) const {
 
     pugi::xml_node highwayTypeNode = getXmlNodeByKeyAttribute(wayNode, "highway");
@@ -191,7 +242,11 @@ bool MapParser::checkIfXmlNodeIsHighway(const pugi::xml_node& wayNode) const {
         return false;
 
     const std::string highwayType = highwayTypeNode.attribute("v").as_string();
-    return checkHighwayType(highwayType);
+    RoadType type{highwayType};
+    if (type == RoadType::UNKNOWN) {
+        std::cout << "Unknown road type: " << highwayType << std::endl;
+    }
+    return RoadType(highwayType) != RoadType::UNKNOWN;
 }
 
 bool MapParser::checkIfXmlNodeIsBuilding(const pugi::xml_node& buildingNode) const {
@@ -228,62 +283,32 @@ pugi::xml_node MapParser::getXmlNodeByKeyAttribute(const pugi::xml_node& node, c
     return pugi::xml_node();
 }
 
-bool MapParser::checkHighwayType(const std::string& highwayType) const {
+bool MapParser::checkIfBuildingHasMultipleOuterNodes(const pugi::xml_node& xml) const {
 
-    static const std::vector<std::string> types = {
-        "motorway",
-        "trunk",
-        "primary",
-        "secondary",
-        "tertiary",
-        "motorway_link",
-        "trunk_link",
-        "primary_link",
-        "secondary_link",
-        "tertiary_link",
-        "road",
-        "residential",
-        "service",
-        "living_street", // spielstraße
-        "track",         // feldweg
-        "pedestrian",
-        "cycleway",
-        "footway",
-        "path",
-        "bridleway", // reitweg
-        "crossing",
-        "platform",
-        "rest_area",
-        "steps",
-        "construction",
-        "bus_stop",
-        "corridor",
-        "elevator",
-        "proposed",
-        "unclassified"
-    };
+    int outerShapeCount = 0;
 
-    static const std::vector<std::string> exclude = {
-        /*"steps",
-        "path",
-        "footway",
-        "service",
-        "cycleway",
-        "pedestrian",
-        "platform"*/
-        "proposed"
-    };
-
-    if (std::find(std::begin(types), std::end(types), highwayType) != std::end(types)) {
-        if (std::find(std::begin(exclude), std::end(exclude), highwayType) != std::end(exclude)) {
-            return false;
-        } else {
-            return true;
+    for (const pugi::xml_node& node : xml.children("member")) {
+        const std::string type = node.attribute("type").as_string();
+        const std::string role = node.attribute("role").as_string();
+        if (type == "way" && role == "outer") {
+            outerShapeCount++;
         }
-    } else {
-        std::cout << "Unknown highway type: " << highwayType << std::endl;
-        return false;
     }
+
+    return outerShapeCount > 1;
+}
+
+bool MapParser::checkIfBuildingHasNoInnerNodes(const pugi::xml_node& xml) const {
+
+    for (const pugi::xml_node& node : xml.children("member")) {
+        const std::string type = node.attribute("type").as_string();
+        const std::string role = node.attribute("role").as_string();
+        if (type == "way" && role == "inner") {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool MapParser::checkBuildingType(const std::string& buildingType) const {

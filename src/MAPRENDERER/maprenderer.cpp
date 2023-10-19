@@ -85,6 +85,8 @@ void MapRenderer::handleEvents() {
 
 void MapRenderer::handleKeyPress(const sf::Event& event) {
     switch (event.key.code) {
+        case sf::Keyboard::Enter:
+            break;
         case sf::Keyboard::R:
         case sf::Keyboard::S:
             showRoads = !showRoads;

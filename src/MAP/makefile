@@ -1,7 +1,8 @@
 
 C_FILES = map.cpp \
           road.cpp \
-          building.cpp
+          building.cpp \
+          roadtype.cpp
 
 SRC_DIR = ./
 
