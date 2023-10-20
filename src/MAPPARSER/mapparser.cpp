@@ -88,9 +88,9 @@ void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
         if (checkIfXmlNodeIsHighway(node)) {
             parseRoad(node);
         }/* else if (checkIfXmlNodeIsBuilding(node)) {
-            //parseBuilding(node);
+            parseBuilding(node);
         } else {
-            //parseOtherWay(node);
+            parseOtherWay(node);
         }*/
     }
 
@@ -123,7 +123,8 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
         RoadType::TRUNK_LINK,
         RoadType::PRIMARY_LINK,
         RoadType::SECONDARY_LINK,
-        RoadType::TERTIARY_LINK
+        RoadType::TERTIARY_LINK,
+        RoadType::LIVING_STREET
     };
 
     const uint64_t id = node.attribute("id").as_ullong();
