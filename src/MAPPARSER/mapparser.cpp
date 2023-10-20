@@ -242,6 +242,13 @@ bool MapParser::checkIfXmlNodeIsHighway(const pugi::xml_node& wayNode) const {
     if (!highwayTypeNode)
         return false;
 
+    pugi::xml_node areaNode = getXmlNodeByKeyAttribute(wayNode, "area");
+    if (areaNode) {
+        std::string areaValue = areaNode.attribute("v").as_string();
+        if (areaValue == "yes")
+            return false;
+    }
+
     const std::string highwayType = highwayTypeNode.attribute("v").as_string();
     RoadType type{highwayType};
     if (type == RoadType::UNKNOWN) {
