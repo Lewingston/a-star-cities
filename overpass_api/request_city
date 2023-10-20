@@ -1,0 +1,19 @@
+[out:xml][timeout:30];
+area["ISO3166-2" = "DE-BE"]->.searchArea;
+(
+  way["highway" = "motorway"](area.searchArea);
+  way["highway" = "trunk"](area.searchArea);
+  way["highway" = "primary"](area.searchArea);
+  way["highway" = "secondary"](area.searchArea);
+  way["highway" = "tertiary"](area.searchArea);
+  way["highway" = "unclassified"](area.searchArea);
+  way["highway" = "residential"](area.searchArea);
+  way["highway" = "motorway_link"](area.searchArea);
+  way["highway" = "trunk_link"](area.searchArea);
+  way["highway" = "primary_link"](area.searchArea);
+  way["highway" = "secondary_link"](area.searchArea);
+  way["highway" = "tertiary_link"](area.searchArea);
+  way["highway" = "living_street"](area.searchArea);
+);
+(._;>;);
+out body qt;

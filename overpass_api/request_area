@@ -1,0 +1,19 @@
+[out:xml][timeout:30]
+[bbox:49.272781,8.359829,49.384899,8.496671];
+(
+  way["highway" = "motorway"];
+  way["highway" = "trunk"];
+  way["highway" = "primary"];
+  way["highway" = "secondary"];
+  way["highway" = "tertiary"];
+  way["highway" = "unclassified"];
+  way["highway" = "residential"];
+  way["highway" = "motorway_link"];
+  way["highway" = "trunk_link"];
+  way["highway" = "primary_link"];
+  way["highway" = "secondary_link"];
+  way["highway" = "tertiary_link"];
+  way["highway" = "living_street"];
+);
+(._;>;);
+out body qt;
