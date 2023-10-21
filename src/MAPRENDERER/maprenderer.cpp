@@ -6,16 +6,19 @@
 #include "SFML/Window/VideoMode.hpp"
 #include "SFML/Window/Event.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 
 #include <iostream>
 
 using namespace AStarCities;
 
+const sf::Color MapRenderer::backgroundColor = sf::Color(10,10,10);
+
 void MapRenderer::openWindow() {
 
-    globalTransform.translate(sf::Vector2f(700, 200));
+    globalTransform.translate(sf::Vector2f(500, 150));
 
-    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(2400u, 1400u)), "A* Cities"));
+    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(2000u, 1300u)), "A* Cities"));
     window->setFramerateLimit(60);
     window->clear(sf::Color::White);
     window->display();
@@ -148,7 +151,7 @@ void MapRenderer::handleMouseMove(const sf::Event& event) {
 
 void MapRenderer::drawMap() {
 
-    window->clear(sf::Color::White);
+    window->clear(backgroundColor);
 
     if (showRoads) {
         for (RoadRenderer& road : roads) {
@@ -162,7 +165,8 @@ void MapRenderer::drawMap() {
         }
     }
 
-    window->draw(&boundingBox[0], boundingBox.size(), sf::PrimitiveType::LineStrip, globalTransform);
+    if (showBoundingBox)
+        window->draw(&boundingBox[0], boundingBox.size(), sf::PrimitiveType::LineStrip, globalTransform);
 
     window->display();
 }

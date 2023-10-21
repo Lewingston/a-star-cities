@@ -4,7 +4,8 @@
 #include "BuildingRenderer.h"
 
 #include "SFML/Graphics/Transform.hpp"
-//#include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
 
 #include <memory>
 #include <vector>
@@ -63,5 +64,8 @@ namespace AStarCities {
 
             bool showBuildings = true;
             bool showRoads = true;
+            bool showBoundingBox = false;
+
+            static const sf::Color backgroundColor;
     };
 }
