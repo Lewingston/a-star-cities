@@ -19,6 +19,7 @@ int main(int argc, char** args) {
     renderer.openWindow();
 
     MapParser parser;
+    parser.parseBuildings(false);
     parser.parseMap(parser.loadFromFile(osmFilePath));
 
     renderer.setMap(parser.getMap());
