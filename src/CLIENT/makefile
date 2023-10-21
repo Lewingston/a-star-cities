@@ -17,6 +17,7 @@ clean:
 INCLUDE_FLAGS =
 
 INCLUDE_FLAGS = -I../ \
-                -isystem../../$(SFML_DIR)include
+                -isystem../../$(SFML_DIR)include \
+                -DSFML_STATIC
 
 include ../comCppMak.mak
