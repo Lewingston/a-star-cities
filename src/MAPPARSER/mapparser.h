@@ -27,6 +27,9 @@ namespace AStarCities {
 
             std::shared_ptr<Map> getMap() const { return map; }
 
+            void parseRoads(bool parseRoads) { this->parseRoadsEnabled = parseRoads; }
+            void parseBuildings(bool parseBuildings) { this->parseBuildingsEnabled = parseBuildings; }
+
         private:
 
             void parseGlobalBounds(const pugi::xml_document& xml);
@@ -62,6 +65,9 @@ namespace AStarCities {
             std::map<uint64_t, std::vector<std::reference_wrapper<const Node>>> otherWays;
 
             bool guessBoundings = false;
+
+            bool parseRoadsEnabled = true;
+            bool parseBuildingsEnabled = true;
 
             double minLat = 90;
             double maxLat = 0;

@@ -85,16 +85,19 @@ void MapParser::parseNodes(const pugi::xml_document& xml) {
 void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
 
     for (const pugi::xml_node& node : xml.child("osm").children("way")) {
-        if (checkIfXmlNodeIsHighway(node)) {
+        if (parseRoadsEnabled && checkIfXmlNodeIsHighway(node)) {
             parseRoad(node);
-        }/* else if (checkIfXmlNodeIsBuilding(node)) {
+        } else if (parseBuildingsEnabled && checkIfXmlNodeIsBuilding(node)) {
             parseBuilding(node);
-        } else {
+        } else if (parseBuildingsEnabled){
             parseOtherWay(node);
-        }*/
+        }
     }
 
-    /*for (const pugi::xml_node& node : xml.child("osm").children("relation")) {
+    if (!parseBuildingsEnabled)
+        return;
+
+    for (const pugi::xml_node& node : xml.child("osm").children("relation")) {
         if (checkIfXmlNodeIsBuilding(node)) {
             if (checkIfBuildingHasMultipleOuterNodes(node)) {
                 if (checkIfBuildingHasNoInnerNodes(node)) {
@@ -106,12 +109,12 @@ void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
                 parseComplexBuilding(node);
             }
         }
-    }*/
+    }
 }
 
 void MapParser::parseRoad(const pugi::xml_node& node) {
 
-    static const std::set<RoadType::Type> allowTypes = {
+    static const std::set<RoadType> allowTypes = {
         RoadType::MOTORWAY,
         RoadType::TRUNK,
         RoadType::PRIMARY,
@@ -130,7 +133,7 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
     const uint64_t id = node.attribute("id").as_ullong();
     const RoadType type = getRoadType(node);
 
-    if (allowTypes.contains(type.getType())) {
+    if (allowTypes.contains(type)) {
         Road road = Road(id, getRoadName(node), type);
         road.setNodes(getNodesFromWay(node));
         map->addRoad(road);
