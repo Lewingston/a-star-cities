@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include <set>
 
 namespace AStarCities {
 
@@ -10,7 +11,7 @@ namespace AStarCities {
 
         public:
 
-            enum Type : uint32_t {
+            enum Type : uint32_t { // not an enum class by choice
                 UNKNOWN = 0,
                 // ===== ROADS =====
                 MOTORWAY,
@@ -58,7 +59,11 @@ namespace AStarCities {
                 RAZED,
             };
 
-            [[nodiscard]] std::string toString() const;
+            static const std::set<RoadType> ROADS;
+            static const std::set<RoadType> LINKS;
+            static const std::set<RoadType> SPECIAL;
+            static const std::set<RoadType> PATHS;
+            static const std::set<RoadType> OTHER;
 
             RoadType() = default;
 
@@ -67,6 +72,8 @@ namespace AStarCities {
             RoadType(Type type) : type(type) {}
 
             virtual ~RoadType() = default;
+
+            static const std::set<RoadType>& getAll();
 
             bool operator==(Type type)     const { return type ==  this->type; }
             bool operator==(RoadType type) const { return this->type == type.type; }
@@ -80,5 +87,7 @@ namespace AStarCities {
             Type type = Type::UNKNOWN;
 
             static const std::map<std::string, Type> typeNameMap;
+
+            static std::set<RoadType> allTypes;
     };
 }

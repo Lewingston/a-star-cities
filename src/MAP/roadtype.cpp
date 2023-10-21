@@ -50,6 +50,40 @@ const std::map<std::string, RoadType::Type> RoadType::typeNameMap = {
     { "razed",          RAZED          }
 };
 
+const std::set<RoadType> RoadType::ROADS = {
+    MOTORWAY, TRUNK, PRIMARY, SECONDARY, TERTIARY, UNCLASSIFIED, RESIDENTIAL
+};
+
+const std::set<RoadType> RoadType::LINKS = {
+    MOTORWAY_LINK, TRUNK_LINK, PRIMARY_LINK, SECONDARY_LINK, TERTIARY_LINK
+};
+
+const std::set<RoadType> RoadType::SPECIAL = {
+    LIVING_STREET, SERVICE, PEDESTRIAN, TRACK, BUS_GUIDEWAY, ESCAPE, ROAD, BUSWAY
+};
+
+const std::set<RoadType> RoadType::PATHS = {
+    FOOTWAY, BRIDLEWAY, STEPS, CORRIDOR, PATH, VIA_FERRATA
+};
+
+const std::set<RoadType> RoadType::OTHER = {
+    CYCLEWAY,  CONSTRUCTION, PROPOSED, ELEVATOR, EMERGENCY_BAY, PLATFORM,
+    REST_AREA, SERVICES,     BUS_STOP, CROSSING, RAZED
+};
+
+std::set<RoadType> RoadType::allTypes;
+
+const std::set<RoadType>& RoadType::getAll() {
+    if (allTypes.size() == 0) {
+        allTypes.insert(ROADS.begin(),   ROADS.end());
+        allTypes.insert(LINKS.begin(),   LINKS.end());
+        allTypes.insert(SPECIAL.begin(), SPECIAL.end());
+        allTypes.insert(PATHS.begin(),   PATHS.end());
+        allTypes.insert(OTHER.begin(),   OTHER.end());
+    }
+    return allTypes;
+}
+
 RoadType::RoadType(const std::string& type) {
     if (auto find = typeNameMap.find(type); find != typeNameMap.end()) {
         this->type = find->second;
