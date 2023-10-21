@@ -20,9 +20,9 @@ namespace AStarCities {
 
             void setNodes(const std::vector<std::reference_wrapper<const Node>>& nodes);
 
-            [[nodiscard]] uint64_t    getId()       const noexcept { return id; }
-            [[nodiscard]] std::string getName()     const noexcept { return name; }
-            [[nodiscard]] RoadType    getRoadType() const noexcept { return type; }
+            [[nodiscard]] uint64_t    getId()   const noexcept { return id; }
+            [[nodiscard]] std::string getName() const noexcept { return name; }
+            [[nodiscard]] RoadType    getType() const noexcept { return type; }
 
             [[nodiscard]] const std::vector<std::reference_wrapper<const Node>>& getNodes() const { return nodes; }
 
