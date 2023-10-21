@@ -57,6 +57,7 @@ WARNING_FLAGS = -Wall \
 
 export GENERAL_COMPILER_FLAGS = -std=c++23 \
                                 -MMD \
+                                -fno-rtti \
                                 $(WARNING_FLAGS)
 
 ifeq ($(MAKECMDGOALS),)
@@ -127,6 +128,8 @@ BUILD_TARGET = all
 ifeq ($(MAKECMDGOALS),clean)
     BUILD_TARGET = clean
 endif
+
+$(ARCHIVE_FILES) : build_subprojects
 
 build_subprojects:
 	@$(MAKE) -C src/MAP/           $(BUILD_TARGET)
