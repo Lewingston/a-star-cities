@@ -10,8 +10,8 @@ namespace AStarCities {
 
         public:
 
-            enum Type {
-                UNKNOWN,
+            enum Type : uint32_t {
+                UNKNOWN = 0,
                 // ===== ROADS =====
                 MOTORWAY,
                 TRUNK,
@@ -64,11 +64,16 @@ namespace AStarCities {
 
             RoadType(const std::string& type);
 
+            RoadType(Type type) : type(type) {}
+
             virtual ~RoadType() = default;
 
-            bool operator==(Type type) const { return type ==  this->type; }
+            bool operator==(Type type)     const { return type ==  this->type; }
+            bool operator==(RoadType type) const { return this->type == type.type; }
+            bool operator<(RoadType type)  const { return this->type < type.type; }
 
-            [[nodiscard]] Type getType() const noexcept { return type; }
+            [[nodiscard]] Type getEnumValue() const { return type; }
+
 
         private:
 
