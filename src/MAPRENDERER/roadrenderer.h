@@ -1,12 +1,16 @@
 #pragma once
 
+#include "MAP/roadtype.h"
+
 #include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/Color.hpp"
 
 #include <memory>
 
 namespace sf {
     class RenderTarget;
     class Transform;
+    class Shader;
 }
 
 namespace AStarCities {
@@ -27,5 +31,7 @@ namespace AStarCities {
             const Road& road;
 
             sf::VertexArray line;
+
+            [[nodiscard]] sf::Color getColorByType(RoadType type) const;
     };
 }
