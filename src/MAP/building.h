@@ -1,5 +1,7 @@
 #pragma once
 
+#include "buildingtype.h"
+
 #include <cstdint>
 #include <functional>
 
@@ -11,10 +13,11 @@ namespace AStarCities {
 
         public:
 
-            Building(uint64_t id) : id(id) {};
+            Building(uint64_t id, BuildingType type) :
+                id(id), type(type) {};
 
-            Building(uint64_t id, const std::vector<std::reference_wrapper<const Node>>& nodes) :
-                id(id), nodes(nodes) {};
+            Building(uint64_t id, BuildingType type, const std::vector<std::reference_wrapper<const Node>>& nodes) :
+                id(id), type(type), nodes(nodes) {};
 
             virtual ~Building() = default;
 
@@ -26,6 +29,8 @@ namespace AStarCities {
 
             [[nodiscard]] uint64_t getId() const noexcept { return id; }
 
+            [[nodiscard]] BuildingType getType() const noexcept { return type; }
+
             [[nodiscard]] const std::vector<std::reference_wrapper<const Node>>& getNodes() const { return nodes; }
 
             [[nodiscard]] const std::vector<std::vector<std::reference_wrapper<const Node>>>& getInnerShapeNodes() const { return innerShapes; }
@@ -33,6 +38,8 @@ namespace AStarCities {
         private:
 
             uint64_t id;
+
+            BuildingType type;
 
             std::vector<std::reference_wrapper<const Node>> nodes;
 

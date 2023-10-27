@@ -2,9 +2,12 @@
 
 #include "MAP/map.h"
 #include "MAP/node.h"
+#include "MAP/RoadType.h"
+#include "MAP/BuildingType.h"
 
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 
 namespace pugi {
@@ -30,6 +33,8 @@ namespace AStarCities {
             void parseRoads(bool parseRoads) { this->parseRoadsEnabled = parseRoads; }
             void parseBuildings(bool parseBuildings) { this->parseBuildingsEnabled = parseBuildings; }
 
+            void parseRoadTypes(const std::set<RoadType> types);
+
         private:
 
             void parseGlobalBounds(const pugi::xml_document& xml);
@@ -48,9 +53,9 @@ namespace AStarCities {
             void parseMultipleBuildings(const pugi::xml_node& xml);
             void parseComplexBuilding(const pugi::xml_node& xml);
             [[nodiscard]] bool checkIfXmlNodeIsBuilding(const pugi::xml_node& buildingNode) const;
-            [[nodiscard]] bool checkBuildingType(const std::string& buildingType) const;
             [[nodiscard]] bool checkIfBuildingHasMultipleOuterNodes(const pugi::xml_node& xml) const;
             [[nodiscard]] bool checkIfBuildingHasNoInnerNodes(const pugi::xml_node& xml) const;
+            [[nodiscard]] BuildingType getBuildingType(const pugi::xml_node& buildingNode) const;
 
             void parseOtherWay(const pugi::xml_node& xml);
 
@@ -63,6 +68,9 @@ namespace AStarCities {
             std::map<uint64_t, Node> allNodes;
 
             std::map<uint64_t, std::vector<std::reference_wrapper<const Node>>> otherWays;
+
+            std::set<RoadType> allowedRoadTypes;
+            std::set<BuildingType> allowedBuildingTypes;
 
             bool guessBoundings = false;
 

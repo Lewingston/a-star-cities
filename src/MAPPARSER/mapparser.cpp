@@ -25,6 +25,10 @@ std::string MapParser::loadFromFile(const std::string& filePath) const {
     return stringStream.str();
 }
 
+void MapParser::parseRoadTypes(const std::set<RoadType> types) {
+    allowedRoadTypes = types;
+}
+
 void MapParser::parseMap(const std::string& mapData) {
 
     map = std::shared_ptr<Map>(new Map());
@@ -114,7 +118,7 @@ void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
 
 void MapParser::parseRoad(const pugi::xml_node& node) {
 
-    static const std::set<RoadType> allowTypes = {
+    /*static const std::set<RoadType> allowTypes = {
         RoadType::MOTORWAY,
         RoadType::TRUNK,
         RoadType::PRIMARY,
@@ -128,12 +132,12 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
         RoadType::SECONDARY_LINK,
         RoadType::TERTIARY_LINK,
         RoadType::LIVING_STREET
-    };
+    };*/
 
     const uint64_t id = node.attribute("id").as_ullong();
     const RoadType type = getRoadType(node);
 
-    if (allowTypes.contains(type)) {
+    if (allowedRoadTypes.contains(type)) {
         Road road = Road(id, getRoadName(node), type);
         road.setNodes(getNodesFromWay(node));
         map->addRoad(road);
@@ -142,7 +146,10 @@ void MapParser::parseRoad(const pugi::xml_node& node) {
 
 void MapParser::parseBuilding(const pugi::xml_node& node) {
 
-    Building building = Building(node.attribute("id").as_ullong());
+    const uint64_t id = node.attribute("id").as_ullong();
+    const BuildingType type = getBuildingType(node);
+
+    Building building = Building(id, type);
 
     building.setNodes(getNodesFromWay(node));
 
@@ -172,7 +179,10 @@ void MapParser::parseMultipleBuildings(const pugi::xml_node& xml) {
 
 void MapParser::parseComplexBuilding(const pugi::xml_node& node) {
 
-    Building building = Building(node.attribute("id").as_ullong());
+    const uint64_t id = node.attribute("id").as_ullong();
+    const BuildingType type = getBuildingType(node);
+
+    Building building = Building(id, type);
 
     bool outerNodeFound = false;
 
@@ -257,7 +267,7 @@ bool MapParser::checkIfXmlNodeIsHighway(const pugi::xml_node& wayNode) const {
     if (type == RoadType::UNKNOWN) {
         std::cout << "Unknown road type: " << highwayType << std::endl;
     }
-    return RoadType(highwayType) != RoadType::UNKNOWN;
+    return type != RoadType::UNKNOWN;
 }
 
 bool MapParser::checkIfXmlNodeIsBuilding(const pugi::xml_node& buildingNode) const {
@@ -267,7 +277,11 @@ bool MapParser::checkIfXmlNodeIsBuilding(const pugi::xml_node& buildingNode) con
         return false;
 
     const std::string buildingType = buildingTypeNode.attribute("v").as_string();
-    return checkBuildingType(buildingType);
+    BuildingType type(buildingType);
+    if (type == BuildingType::UNKNOWN) {
+        std::cout << "Unknown building type: " << buildingType << std::endl;
+    }
+    return type != BuildingType::UNKNOWN;
 }
 
 std::vector<std::reference_wrapper<const Node>> MapParser::getNodesFromWay(const pugi::xml_node& xmlNode) const {
@@ -322,116 +336,10 @@ bool MapParser::checkIfBuildingHasNoInnerNodes(const pugi::xml_node& xml) const 
     return true;
 }
 
-bool MapParser::checkBuildingType(const std::string& buildingType) const {
-
-    static const std::vector<std::string> types = {
-        "skyscraper",
-        "apartments",
-        "residential",
-        "commercial",
-        "supermarket",
-        "retail",
-        "hotel",
-        "office",
-        "bank",
-        "industrial",
-        "government",
-        "warehouse",
-        "silo",
-        "transportation",
-        "house",
-        "semidetached_house",
-        "detached",
-        "bungalow",
-        "hospital",
-        "university",
-        "college",
-        "school",
-        "kindergarten",
-        "cathedral",
-        "church",
-        "chapel",
-        "mosque",
-        "monastery",
-        "synagogue",
-        "religious",
-        "museum",
-        "kiosk",
-        "toilets",
-        "stadium",
-        "sports_centre",
-        "sports_hall",
-        "swimming_hall",
-        "grandstand",
-        "dormitory",
-        "train_station",
-        "fire_station",
-        "public_building",
-        "public",
-        "civic",
-        "funeral_hall",
-        "tower",
-        "bell_tower",
-        "bridge",
-        "city_gate",
-        "gate",
-        "gate_house",
-        "beer_tent",
-        "pavilion",
-        "service",
-        "hangar",
-        "parking",
-        "garages",
-        "garage",
-        "greenhouse",
-        "farm",
-        "barn",
-        "stable",
-        "cabin",
-        "farm_auxiliary",
-        "shed",
-        "sty",             // schwienestall
-        "allotment_house", // kleine hütte
-        "terrace",
-        "carport",
-        "roof",
-        "shelter",
-        "hut",
-        "booth",
-        "gasometer",
-        "transformer_tower",
-        "electricity",
-        "storage",
-        "storage_tank",
-        "boathouse",
-        "houseboat",
-        "boat",
-        "ship",
-        "pylon",
-        "container",
-        "elevator",
-        "stairs",
-        "chimney",
-        "construction",
-        "ruins",
-        "historic",
-        "collapsed",
-        "bunker",
-        "yes"
-    };
-
-    static const std::vector<std::string> exclude = {
-
-    };
-
-    if (std::find(std::begin(types), std::end(types), buildingType) != std::end(types)) {
-        if (std::find(std::begin(exclude), std::end(exclude), buildingType) != std::end(exclude)) {
-            return false;
-        } else {
-            return true;
-        }
-    } else {
-        std::cout << "Unknown building type: " << buildingType << std::endl;
-        return false;
-    }
+BuildingType MapParser::getBuildingType(const pugi::xml_node& node) const {
+    pugi::xml_node typeNode = getXmlNodeByKeyAttribute(node, "building");
+    if (!typeNode)
+        return BuildingType();
+    else
+        return BuildingType(typeNode.attribute("v").as_string());
 }
