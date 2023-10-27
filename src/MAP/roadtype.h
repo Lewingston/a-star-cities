@@ -56,7 +56,7 @@ namespace AStarCities {
                 SERVICES,
                 BUS_STOP,
                 CROSSING,
-                RAZED,
+                RAZED
             };
 
             static const std::set<RoadType> ROADS;
@@ -65,6 +65,8 @@ namespace AStarCities {
             static const std::set<RoadType> PATHS;
             static const std::set<RoadType> OTHER;
 
+            static const std::set<RoadType>& getAll();
+
             RoadType() = default;
 
             RoadType(const std::string& type);
@@ -72,8 +74,6 @@ namespace AStarCities {
             RoadType(Type type) : type(type) {}
 
             virtual ~RoadType() = default;
-
-            static const std::set<RoadType>& getAll();
 
             bool operator==(Type type)     const { return type ==  this->type; }
             bool operator==(RoadType type) const { return this->type == type.type; }

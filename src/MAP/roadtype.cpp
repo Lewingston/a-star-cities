@@ -37,7 +37,7 @@ const std::map<std::string, RoadType::Type> RoadType::typeNameMap = {
     // ===== CYCLEWAY =====
     { "cycleway",       CYCLEWAY       },
     // ===== LIFECYCLE =====
-    { "construction",   CYCLEWAY       },
+    { "construction",   CONSTRUCTION   },
     // ===== OTHER HIGHWAY FEATURES =====
     { "elevator",       ELEVATOR       },
     { "emergancy_bay",  EMERGENCY_BAY  },
