@@ -103,7 +103,7 @@ debug: all
 
 release: all
 
-all: build_subprojects $(BIN_NAME)
+all: $(BIN_NAME)
 
 test : build_subprojects $(BIN_NAME)
 	./$(BIN_NAME) maps/speyer.osm
