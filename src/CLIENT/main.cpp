@@ -18,8 +18,8 @@ int main(int argc, char** args) {
 
     const std::string osmFilePath = std::string(args[1]);
 
-    richMap(osmFilePath);
-    //pathMap(osmFilePath);
+    //richMap(osmFilePath);
+    pathMap(osmFilePath);
 
     return 0;
 
@@ -115,6 +115,20 @@ void richMap(const std::string& filePath) {
 void pathMap(const std::string& filePath) {
 
     MapRenderer renderer;
+
+    renderer.setRoadColor(RoadType::LIVING_STREET,  sf::Color(16, 16, 16));
+    renderer.setRoadColor(RoadType::RESIDENTIAL,    sf::Color(18, 18, 18));
+    renderer.setRoadColor(RoadType::UNCLASSIFIED,   sf::Color(20, 20, 20));
+    renderer.setRoadColor(RoadType::TERTIARY,       sf::Color(22, 22, 22));
+    renderer.setRoadColor(RoadType::TERTIARY_LINK,  sf::Color(22, 22, 22));
+    renderer.setRoadColor(RoadType::SECONDARY,      sf::Color(24, 24, 24));
+    renderer.setRoadColor(RoadType::SECONDARY_LINK, sf::Color(24, 24, 24));
+    renderer.setRoadColor(RoadType::PRIMARY,        sf::Color(26, 26, 26));
+    renderer.setRoadColor(RoadType::PRIMARY_LINK,   sf::Color(26, 26, 26));
+    renderer.setRoadColor(RoadType::TRUNK,          sf::Color(28, 28, 28));
+    renderer.setRoadColor(RoadType::TRUNK_LINK,     sf::Color(28, 28, 28));
+    renderer.setRoadColor(RoadType::MOTORWAY,       sf::Color(30, 30, 30));
+    renderer.setRoadColor(RoadType::MOTORWAY_LINK,  sf::Color(30, 30, 30));
 
     renderer.openWindow();
 
