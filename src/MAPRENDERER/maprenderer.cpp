@@ -12,7 +12,19 @@
 
 using namespace AStarCities;
 
-const sf::Color MapRenderer::backgroundColor = sf::Color(10,10,10);
+MapRenderer::MapRenderer() {
+
+    // init road color map
+    for (RoadType type : RoadType::getAll()) {
+        roadColorMap.insert({type, sf::Color(0, 0, 0)});
+    }
+
+    // init building color map
+    for (BuildingType type : BuildingType::getAll()) {
+        buildingColorMap.insert({type, sf::Color(128, 128, 128)});
+    }
+
+}
 
 void MapRenderer::openWindow() {
 
@@ -30,24 +42,52 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
 
     for (const auto& pair : map->getRoads()) {
         const Road& road = pair.second;
-        roads.push_back(RoadRenderer(road));
+        roads.push_back(RoadRenderer(road, roadColorMap[road.getType()]));
     }
 
     for (const auto& pair : map->getBuildings()) {
         const Building& building = pair.second;
-        buildings.push_back(BuildingRenderer(building));
+        buildings.push_back(BuildingRenderer(building, buildingColorMap[building.getType()]));
     }
 
     createBoundingBox(static_cast<float>(map->getLocalWidth()), static_cast<float>(map->getLocalHeight()));
 }
 
+void MapRenderer::setRoadColor(RoadType type, sf::Color color) {
+    if (auto find = roadColorMap.find(type); find != roadColorMap.end()) {
+        find->second = color;
+    } else {
+        std::cerr << "Renderer WARNING: Try to set color of unknown road type: " << type.getEnumValue() << std::endl;
+    }
+}
+
+void MapRenderer::setRoadColor(const std::set<RoadType>& types, sf::Color color) {
+    for (RoadType type : types) {
+        setRoadColor(type, color);
+    }
+}
+
+void MapRenderer::setBuildingColor(BuildingType type, sf::Color color) {
+    if (auto find = buildingColorMap.find(type); find != buildingColorMap.end()) {
+        find->second = color;
+    } else {
+        std::cerr << "Renderer WARNING: Try to set color of unknown building type: " << type.getEnumValue() << std::endl;
+    }
+}
+
+void MapRenderer::setBuildingColor(const std::set<BuildingType>& types, sf::Color color) {
+    for (BuildingType type : types) {
+        setBuildingColor(type, color);
+    }
+}
+
 void MapRenderer::createBoundingBox(float width, float height) {
     boundingBox.clear();
-    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0), sf::Color::Red));
-    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, 0), sf::Color::Red));
-    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, height), sf::Color::Red));
-    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, height), sf::Color::Red));
-    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0), sf::Color::Red));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0),          boundingBoxColor));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, 0),      boundingBoxColor));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(width, height), boundingBoxColor));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, height),     boundingBoxColor));
+    boundingBox.push_back(sf::Vertex(sf::Vector2f(0, 0),          boundingBoxColor));
 }
 
 void MapRenderer::runSimulation() {
@@ -165,8 +205,9 @@ void MapRenderer::drawMap() {
         }
     }
 
-    if (showBoundingBox)
+    if (showBoundingBox) {
         window->draw(&boundingBox[0], boundingBox.size(), sf::PrimitiveType::LineStrip, globalTransform);
+    }
 
     window->display();
 }

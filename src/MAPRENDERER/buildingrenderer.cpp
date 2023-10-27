@@ -13,10 +13,10 @@
 
 using namespace AStarCities;
 
-BuildingRenderer::BuildingRenderer(const Building& building) :
+BuildingRenderer::BuildingRenderer(const Building& building, sf::Color color) :
     building(building) {
 
-    generateShape();
+    generateShape(color);
 }
 
 void BuildingRenderer::draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf::Transform& transform) {
@@ -25,7 +25,7 @@ void BuildingRenderer::draw(std::shared_ptr<sf::RenderTarget> renderTarget, cons
         renderTarget->draw(shape, transform);
 }
 
-void BuildingRenderer::generateShape() {
+void BuildingRenderer::generateShape(sf::Color color) {
 
     std::vector<std::vector<std::array<double, 2>>> points;
 
@@ -66,7 +66,7 @@ void BuildingRenderer::generateShape() {
 
         const auto [posX, posY] = points.at(indexX).at(indexY);
         shape[ii].position = sf::Vector2f(static_cast<float>(posX), static_cast<float>(posY));
-        shape[ii].color = sf::Color(128, 128, 128);
+        shape[ii].color = color;
     }
 
 }

@@ -11,11 +11,11 @@
 
 using namespace AStarCities;
 
-RoadRenderer::RoadRenderer(const Road& road) :
+RoadRenderer::RoadRenderer(const Road& road, sf::Color color) :
     road(road),
     line(sf::PrimitiveType::LineStrip, road.getNodes().size()) {
 
-    const sf::Color color = getColorByType(road.getType());
+    //const sf::Color color = getColorByType(road.getType());
 
     const std::vector<std::reference_wrapper<const Node>>& nodes = road.getNodes();
     for (std::size_t ii = 0; ii < nodes.size(); ii++) {
@@ -32,13 +32,13 @@ void RoadRenderer::draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf
     renderTarget->draw(line, renderStates);
 }
 
-sf::Color RoadRenderer::getColorByType(RoadType type) const {
+/*sf::Color RoadRenderer::getColorByType(RoadType type) const {
 
-    /*const uint8_t r = std::rand() % 255;
+    const uint8_t r = std::rand() % 255;
     const uint8_t g = std::rand() % 255;
     const uint8_t b = std::rand() % 255;
 
-    return sf::Color(r, g, b);*/
+    return sf::Color(r, g, b);
 
     switch (type.getEnumValue()) {
         case  RoadType::LIVING_STREET:
@@ -67,4 +67,4 @@ sf::Color RoadRenderer::getColorByType(RoadType type) const {
     }
 
     return sf::Color(255, 0, 255);
-}
+}*/

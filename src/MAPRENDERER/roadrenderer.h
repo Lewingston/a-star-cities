@@ -21,7 +21,7 @@ namespace AStarCities {
 
         public:
 
-            RoadRenderer(const Road& road);
+            RoadRenderer(const Road& road, sf::Color color = sf::Color(0, 0, 0));
             virtual ~RoadRenderer() = default;
 
             void draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf::Transform& transform);

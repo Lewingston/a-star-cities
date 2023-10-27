@@ -23,10 +23,18 @@ namespace AStarCities {
 
         public:
 
-            MapRenderer() = default;
+            MapRenderer();
             virtual ~MapRenderer() = default;
 
             void openWindow();
+
+            void setBackgroundColor(sf::Color color) { backgroundColor = color; }
+            void setBoundingBoxColor(sf::Color color) { boundingBoxColor = color; }
+
+            void setRoadColor(RoadType type, sf::Color color);
+            void setRoadColor(const std::set<RoadType>& types, sf::Color color);
+            void setBuildingColor(BuildingType type, sf::Color color);
+            void setBuildingColor(const std::set<BuildingType>& types, sf::Color color);
 
             void setMap(std::shared_ptr<Map> map);
 
@@ -62,10 +70,14 @@ namespace AStarCities {
             int oldY = 0;
             float zoom = 1.0f;
 
-            bool showBuildings = true;
-            bool showRoads = true;
+            bool showBuildings   = true;
+            bool showRoads       = true;
             bool showBoundingBox = false;
 
-            static const sf::Color backgroundColor;
+            sf::Color backgroundColor  = sf::Color(10, 10, 10);
+            sf::Color boundingBoxColor = sf::Color(255, 0, 0);
+
+            std::map<RoadType, sf::Color> roadColorMap;
+            std::map<BuildingType, sf::Color> buildingColorMap;
     };
 }
