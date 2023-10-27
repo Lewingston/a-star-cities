@@ -115,9 +115,9 @@ clean: build_subprojects
 #                              BUILD BINARY                                    #
 ################################################################################
 
-$(BIN_NAME) : $(ARCHIVE_FILES)
+$(BIN_NAME) : $(ARCHIVE_FILES) build_subprojects
 	@echo Link archives to executable '$@'
-	@$(LINKER) $^ -o $@ $(LINKER_FLAGS)
+	@$(LINKER) $(ARCHIVE_FILES) -o $@ $(LINKER_FLAGS)
 
 ################################################################################
 #                           BUILD SUBPROJECTS                                  #
