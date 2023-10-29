@@ -132,8 +132,19 @@ void pathMap(const std::string& filePath) {
 
     renderer.openWindow();
 
-    std::set<RoadType> roadTypes = RoadType::ROADS;
-    roadTypes.insert(RoadType::LINKS.begin(), RoadType::LINKS.end());
+    std::set<RoadType> roadTypes;
+    roadTypes.insert(RoadType::MOTORWAY);
+    roadTypes.insert(RoadType::MOTORWAY_LINK);
+    roadTypes.insert(RoadType::TRUNK);
+    roadTypes.insert(RoadType::TRUNK_LINK);
+    roadTypes.insert(RoadType::PRIMARY);
+    roadTypes.insert(RoadType::PRIMARY_LINK);
+    roadTypes.insert(RoadType::SECONDARY);
+    roadTypes.insert(RoadType::SECONDARY_LINK);
+    roadTypes.insert(RoadType::TERTIARY);
+    roadTypes.insert(RoadType::TERTIARY_LINK);
+    roadTypes.insert(RoadType::UNCLASSIFIED);
+    roadTypes.insert(RoadType::RESIDENTIAL);
     roadTypes.insert(RoadType::LIVING_STREET);
 
     MapParser parser;
@@ -141,6 +152,9 @@ void pathMap(const std::string& filePath) {
     parser.parseBuildings(false);
     parser.parseMap(parser.loadFromFile(filePath));
 
-    renderer.setMap(parser.getMap());
+    std::shared_ptr<Map> map = parser.getMap();
+    map->analyseRoadNetwork();
+
+    renderer.setMap(map);
     renderer.runSimulation();
 }
