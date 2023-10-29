@@ -15,6 +15,11 @@ RoadRenderer::RoadRenderer(const Road& road, sf::Color color) :
     road(road),
     line(sf::PrimitiveType::LineStrip, road.getNodes().size()) {
 
+    const uint8_t r = std::rand() % 256;
+    const uint8_t g = std::rand() % 256;
+    const uint8_t b = std::rand() % 256;
+    color = sf::Color(r, g, b);
+
     const std::vector<std::reference_wrapper<const Node>>& nodes = road.getNodes();
     for (std::size_t ii = 0; ii < nodes.size(); ii++) {
         const auto [posX, posY] = nodes.at(ii).get().getLocalPosition();
