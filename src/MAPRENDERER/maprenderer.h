@@ -6,6 +6,7 @@
 #include "SFML/Graphics/Transform.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
 
 #include <memory>
 #include <vector>
@@ -51,6 +52,7 @@ namespace AStarCities {
             void handleMouseMove(const sf::Event& event);
 
             void drawMap();
+            void drawInterchanges();
 
             void translate(float x, float y);
 
@@ -70,14 +72,17 @@ namespace AStarCities {
             int oldY = 0;
             float zoom = 1.0f;
 
-            bool showBuildings   = true;
-            bool showRoads       = true;
-            bool showBoundingBox = false;
+            bool showBuildings    = true;
+            bool showRoads        = true;
+            bool showBoundingBox  = false;
+            bool showInterchanges = true;
 
             sf::Color backgroundColor  = sf::Color(10, 10, 10);
             sf::Color boundingBoxColor = sf::Color(255, 0, 0);
 
             std::map<RoadType, sf::Color> roadColorMap;
             std::map<BuildingType, sf::Color> buildingColorMap;
+
+            sf::CircleShape intersectionCircle{0.25};
     };
 }

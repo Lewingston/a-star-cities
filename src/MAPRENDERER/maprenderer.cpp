@@ -24,6 +24,8 @@ MapRenderer::MapRenderer() {
         buildingColorMap.insert({type, sf::Color(128, 128, 128)});
     }
 
+    intersectionCircle.setFillColor(sf::Color(100, 250, 50));
+
 }
 
 void MapRenderer::openWindow() {
@@ -209,5 +211,18 @@ void MapRenderer::drawMap() {
         window->draw(&boundingBox[0], boundingBox.size(), sf::PrimitiveType::LineStrip, globalTransform);
     }
 
+    if (showInterchanges) {
+        drawInterchanges();
+    }
+
+
     window->display();
+}
+
+void MapRenderer::drawInterchanges() {
+    for (const auto& [id, intersection] : map->getIntersections()) {
+        auto [posX, posY] = intersection.getPosition();
+        intersectionCircle.setPosition(sf::Vector2f(static_cast<float>(posX) - 0.25f, static_cast<float>(posY) - 0.25f));
+        window->draw(intersectionCircle, globalTransform);
+    }
 }
