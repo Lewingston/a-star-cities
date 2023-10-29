@@ -3,6 +3,8 @@
 #include "node.h"
 #include "road.h"
 #include "building.h"
+#include "intersection.h"
+#include "idhandler.h"
 
 #include <map>
 
@@ -17,15 +19,18 @@ namespace AStarCities {
 
             void setGlobalBounds(double minlat, double maxlat, double minlon, double maxlon);
 
-            [[nodiscard]] const std::map<uint64_t, Node>&     getNodes()     const noexcept { return nodes; }
-            [[nodiscard]] const std::map<uint64_t, Road>&     getRoads()     const noexcept { return roads; }
-            [[nodiscard]] const std::map<uint64_t, Building>& getBuildings() const noexcept { return buildings; }
+            [[nodiscard]] const std::map<uint64_t, Node>&         getNodes()         const noexcept { return nodes; }
+            [[nodiscard]] const std::map<uint64_t, Road>&         getRoads()         const noexcept { return roads; }
+            [[nodiscard]] const std::map<uint64_t, Building>&     getBuildings()     const noexcept { return buildings; }
+            [[nodiscard]] const std::map<uint64_t, Intersection>& getIntersections() const noexcept { return intersections; }
 
             [[nodiscard]] double getLocalWidth()  const noexcept { return localWidth; }
             [[nodiscard]] double getLocalHeight() const noexcept { return localHeight; }
 
             void addRoad(const Road& road);
             void addBuilding(const Building& building);
+
+            void analyseRoadNetwork();
 
         private:
 
@@ -36,6 +41,14 @@ namespace AStarCities {
 
             std::vector<std::reference_wrapper<const Node>> addNodes(const std::vector<std::reference_wrapper<const Node>>& nodes);
             const Node* addNode(const Node& node);
+
+            void findIntersections();
+            void splitRoadsOnIntersections();
+            void fuseRoads();
+
+            [[nodiscard]] Road connectRoads(const Road& road1, const Road& road2);
+
+            IdHandler idHandler;
 
             double minLatitude;
             double maxLatitude;
@@ -48,6 +61,7 @@ namespace AStarCities {
             std::map<uint64_t, Node> nodes;
             std::map<uint64_t, Road> roads;
             std::map<uint64_t, Building> buildings;
+            std::map<uint64_t, Intersection> intersections;
 
     };
 }
