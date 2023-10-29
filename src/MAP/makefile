@@ -3,7 +3,8 @@ C_FILES = map.cpp \
           road.cpp \
           building.cpp \
           roadtype.cpp \
-          buildingtype.cpp
+          buildingtype.cpp \
+          intersection.cpp
 
 SRC_DIR = ./
 
