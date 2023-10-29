@@ -103,7 +103,7 @@ debug: all
 
 release: all
 
-all: $(BIN_NAME)
+all: build_subprojects $(BIN_NAME)
 
 test : build_subprojects $(BIN_NAME)
 	./$(BIN_NAME) maps/speyer.osm
@@ -115,7 +115,7 @@ clean: build_subprojects
 #                              BUILD BINARY                                    #
 ################################################################################
 
-$(BIN_NAME) : $(ARCHIVE_FILES) build_subprojects
+$(BIN_NAME) : $(ARCHIVE_FILES)
 	@echo Link archives to executable '$@'
 	@$(LINKER) $(ARCHIVE_FILES) -o $@ $(LINKER_FLAGS)
 
