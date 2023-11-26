@@ -99,19 +99,58 @@ std::pair<double, double> Map::globalPosToLocal(std::pair<double, double> global
 }
 
 void Map::analyseRoadNetwork() {
+
     findIntersections();
     splitRoadsOnIntersections();
     findIntersections();
     fuseRoads(); // this step is optional
-    // TODO: remove roads which are not connected to the rest of the map
-    // TODO: add intersections to the end of roads
+    setIntersectionsToEndOfRoads();
+
+    networkFinder = std::unique_ptr<NetworkFinder>(new NetworkFinder(*this));
+    networkFinder->generateNetworks();
+}
+
+std::unique_ptr<Map> Map::getMainNetwork() const {
+
+    if (!networkFinder)
+        return nullptr;
+
+    std::vector<NetworkFinder::RoadNetwork> networks = networkFinder->getRoadNetworks();
+
+    std::unique_ptr<Map> map = std::unique_ptr<Map>(new Map());
+
+    NetworkFinder::RoadNetwork& mainNetwork = networks.at(0);
+
+    std::size_t totalNodeCount = NetworkFinder::getNetworkNodeCount(mainNetwork);
+
+    for (auto iterator = networks.begin() + 1; iterator != networks.end(); iterator++) {
+        totalNodeCount += NetworkFinder::getNetworkNodeCount(*iterator);
+        if (iterator->size() > mainNetwork.size()) {
+            mainNetwork = *iterator;
+        }
+    }
+
+    map->setGlobalBounds(minLatitude, maxLatitude, minLongitude, maxLongitude);
+    for (const Road& road : mainNetwork) {
+        map->addRoad(road);
+    }
+
+    const std::size_t mainNetworkNodeCount = NetworkFinder::getNetworkNodeCount(mainNetwork);
+    const float remainingNodesPercent = static_cast<float>(mainNetworkNodeCount) / static_cast<float>(totalNodeCount) * 100.0f;
+    std::cout << "Nodes removed: " << totalNodeCount - mainNetworkNodeCount << " (" << 100.0f - remainingNodesPercent << "%)\n";
+
+    if (remainingNodesPercent < 0.66f) {
+        std::cerr << "Mpa - Warning: More then 1/3 of nodes removed from main network. Maybe there is a problem.\n";
+    }
+
+    return map;
 }
 
 void Map::findIntersections() {
 
     // all road nodes
     std::map<uint64_t, Intersection> allRoadNodes;
-    for (const auto& [roadId, road] : roads) {
+    for (auto& [roadId, road] : roads) {
         for (const Node& node : road.getNodes()) {
             Intersection intersection(node);
             auto [intersectionIterator, success] = allRoadNodes.insert({node.getId(), intersection});
@@ -121,8 +160,9 @@ void Map::findIntersections() {
 
     // find intersections with multiple roads
     for (const auto& [id, intersection] : allRoadNodes) {
-        if (intersection.getRoadCount() > 1)
+        if (intersection.getRoadCount() > 1) {
             intersections.insert({id, intersection});
+        }
     }
 }
 
@@ -257,4 +297,37 @@ Road Map::connectRoads(const Road& road1, const Road& road2) {
     road.setNodes(newNodes);
 
     return road;
+}
+
+/*
+ * Set intersections at the end of roads. If the end of a road has no intersection
+ * because there are no other roads connected, create a new intersection.
+ */
+void Map::setIntersectionsToEndOfRoads() {
+
+    // iterate over all roads
+    for (auto& [id, road] : roads) {
+
+        // check if the road has an intersection at the beginning
+        const Node& startNode = road.getStartNode();
+        if (auto interIter = intersections.find(startNode.getId()); interIter == intersections.end()) {
+            const auto [iter, success] = intersections.insert({startNode.getId(), Intersection(startNode)});
+            iter->second.addRoad(road);
+            road.setEndPoint(&iter->second);
+        } else {
+            interIter->second.addRoad(road);
+            road.setEndPoint(&interIter->second);
+        }
+
+        // check if the road has an intersection at the end
+        const Node& endNode = road.getEndNode();
+        if (auto interIter = intersections.find(endNode.getId()); interIter == intersections.end()) {
+            const auto [iter, success] = intersections.insert({endNode.getId(), Intersection(endNode)});
+            iter->second.addRoad(road);
+            road.setEndPoint(&iter->second);
+        } else {
+            interIter->second.addRoad(road);
+            road.setEndPoint(&interIter->second);
+        }
+    }
 }

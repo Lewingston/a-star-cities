@@ -5,8 +5,10 @@
 #include "building.h"
 #include "intersection.h"
 #include "idhandler.h"
+#include "networkfinder.h"
 
 #include <map>
+#include <memory>
 
 namespace AStarCities {
 
@@ -32,6 +34,8 @@ namespace AStarCities {
 
             void analyseRoadNetwork();
 
+            std::unique_ptr<Map> getMainNetwork() const;
+
         private:
 
             [[nodiscard]] double getGlobalWidth()  const noexcept { return maxLongitude - minLongitude; }
@@ -45,10 +49,13 @@ namespace AStarCities {
             void findIntersections();
             void splitRoadsOnIntersections();
             void fuseRoads();
+            void setIntersectionsToEndOfRoads();
 
             [[nodiscard]] Road connectRoads(const Road& road1, const Road& road2);
 
             IdHandler idHandler;
+
+            std::unique_ptr<NetworkFinder> networkFinder;
 
             double minLatitude;
             double maxLatitude;
