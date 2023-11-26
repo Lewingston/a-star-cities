@@ -17,7 +17,7 @@ namespace AStarCities {
             Intersection(const Node& node) : node(node) {}
             virtual ~Intersection() = default;
 
-            void addRoad(const Road& road) { roads.push_back(road); }
+            void addRoad(const Road& road);
 
             void removeRoad(const Road& road);
             void removeRoad(uint64_t roadId);

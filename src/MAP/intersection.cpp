@@ -4,6 +4,10 @@
 
 using namespace AStarCities;
 
+void Intersection::addRoad(const Road& road) {
+    roads.push_back(road);
+}
+
 void Intersection::removeRoad(const Road& road) {
     removeRoad(road.getId());
 }
