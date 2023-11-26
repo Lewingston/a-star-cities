@@ -25,7 +25,6 @@ MapRenderer::MapRenderer() {
     }
 
     intersectionCircle.setFillColor(sf::Color(100, 250, 50));
-
 }
 
 void MapRenderer::openWindow() {
@@ -214,7 +213,6 @@ void MapRenderer::drawMap() {
     if (showInterchanges) {
         drawInterchanges();
     }
-
 
     window->display();
 }
