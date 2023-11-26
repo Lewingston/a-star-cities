@@ -4,7 +4,8 @@ C_FILES = map.cpp \
           building.cpp \
           roadtype.cpp \
           buildingtype.cpp \
-          intersection.cpp
+          intersection.cpp \
+          networkfinder.cpp
 
 SRC_DIR = ./
 
