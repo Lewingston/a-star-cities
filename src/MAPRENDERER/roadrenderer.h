@@ -26,6 +26,8 @@ namespace AStarCities {
 
             void draw(std::shared_ptr<sf::RenderTarget> renderTarget, const sf::Transform& transform);
 
+            void setColor(sf::Color color);
+
         private:
 
             const Road& road;
