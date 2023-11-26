@@ -154,6 +154,7 @@ void pathMap(const std::string& filePath) {
 
     std::shared_ptr<Map> map = parser.getMap();
     map->analyseRoadNetwork();
+    map = map->getMainNetwork();
 
     renderer.setMap(map);
     renderer.runSimulation();
