@@ -118,22 +118,6 @@ void MapParser::parseRoadsAndBuildings(const pugi::xml_document& xml) {
 
 void MapParser::parseRoad(const pugi::xml_node& node) {
 
-    /*static const std::set<RoadType> allowTypes = {
-        RoadType::MOTORWAY,
-        RoadType::TRUNK,
-        RoadType::PRIMARY,
-        RoadType::SECONDARY,
-        RoadType::TERTIARY,
-        RoadType::UNCLASSIFIED,
-        RoadType::RESIDENTIAL,
-        RoadType::MOTORWAY_LINK,
-        RoadType::TRUNK_LINK,
-        RoadType::PRIMARY_LINK,
-        RoadType::SECONDARY_LINK,
-        RoadType::TERTIARY_LINK,
-        RoadType::LIVING_STREET
-    };*/
-
     const uint64_t id = node.attribute("id").as_ullong();
     const RoadType type = getRoadType(node);
 
