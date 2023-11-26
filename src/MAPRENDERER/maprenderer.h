@@ -75,7 +75,7 @@ namespace AStarCities {
             bool showBuildings    = true;
             bool showRoads        = true;
             bool showBoundingBox  = false;
-            bool showInterchanges = true;
+            bool showInterchanges = false;
 
             sf::Color backgroundColor  = sf::Color(10, 10, 10);
             sf::Color boundingBoxColor = sf::Color(255, 0, 0);
