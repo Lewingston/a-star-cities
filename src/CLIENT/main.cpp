@@ -3,6 +3,7 @@
 
 #include "MAPPARSER/mapparser.h"
 #include "MAPRENDERER/maprenderer.h"
+#include "SOLVER/Solver.h"
 
 using namespace AStarCities;
 
@@ -155,7 +156,12 @@ void pathMap(const std::string& filePath) {
     std::shared_ptr<Map> map = parser.getMap();
     map->analyseRoadNetwork();
     map = map->getMainNetwork();
+    map->findIntersections();
+
+    const auto& [start, end] = Solver::selectStartAndEndIntersection(map);
 
     renderer.setMap(map);
+    renderer.setStartPoint(start);
+    renderer.setEndPoint(end);
     renderer.runSimulation();
 }
