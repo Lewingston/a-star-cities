@@ -39,7 +39,7 @@ const Intersection& Solver::selectRandomIntersection(std::shared_ptr<Map> map) {
 
     std::random_device rd;
     std::mt19937 generator(rd());
-    std::uniform_int_distribution<> distr(0, static_cast<int>(nodes.size()));
+    std::uniform_int_distribution<> distr(0, static_cast<int>(nodes.size() - 1));
 
     auto iter = nodes.begin();
     int rand = distr(generator);
