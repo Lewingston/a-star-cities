@@ -17,6 +17,8 @@ namespace AStarCities {
             Intersection(const Node& node) : node(node) {}
             virtual ~Intersection() = default;
 
+            bool operator==(const Intersection& inter) const { return getId() == inter.getId(); }
+
             void addRoad(const Road& road);
 
             void removeRoad(const Road& road);
