@@ -20,6 +20,7 @@ ARCHIVE_FILES = obj/CLIENT/client.a \
                 obj/MAPPARSER/mapparser.a \
                 obj/MAPRENDERER/maprenderer.a \
                 obj/MAP/map.a \
+                obj/SOLVER/solver.a \
                 $(PUGIXML_DIR)build/make-g++-debug-standard-c++11/src/pugixml.cpp.o
 
 ################################################################################
@@ -136,3 +137,4 @@ build_subprojects:
 	@$(MAKE) -C src/MAPPARSER/     $(BUILD_TARGET)
 	@$(MAKE) -C src/MAPRENDERER/   $(BUILD_TARGET)
 	@$(MAKE) -C src/CLIENT/        $(BUILD_TARGET)
+	@$(MAKE) -C src/SOLVER/        $(BUILD_TARGET)
