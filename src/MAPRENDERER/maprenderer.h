@@ -19,6 +19,7 @@ namespace sf {
 namespace AStarCities {
 
     class Map;
+    class Intersection;
 
     class MapRenderer {
 
@@ -38,6 +39,8 @@ namespace AStarCities {
             void setBuildingColor(const std::set<BuildingType>& types, sf::Color color);
 
             void setMap(std::shared_ptr<Map> map);
+            void setStartPoint(const Intersection& start) { startInter = &start; }
+            void setEndPoint(const Intersection& end) { endInter = &end; }
 
             void runSimulation();
 
@@ -53,6 +56,7 @@ namespace AStarCities {
 
             void drawMap();
             void drawInterchanges();
+            void drawInterchange(const Intersection& inter);
 
             void translate(float x, float y);
 
@@ -83,6 +87,11 @@ namespace AStarCities {
             std::map<RoadType, sf::Color> roadColorMap;
             std::map<BuildingType, sf::Color> buildingColorMap;
 
-            sf::CircleShape intersectionCircle{0.25};
+            Intersection const* startInter = nullptr;
+            Intersection const* endInter   = nullptr;
+
+            static constexpr float INTERSECTION_MARKER_SIZE = 1;
+
+            sf::CircleShape intersectionCircle{INTERSECTION_MARKER_SIZE};
     };
 }
