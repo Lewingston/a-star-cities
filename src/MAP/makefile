@@ -1,5 +1,6 @@
 
 C_FILES = map.cpp \
+          node.cpp \
           road.cpp \
           building.cpp \
           roadtype.cpp \
