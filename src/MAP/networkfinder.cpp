@@ -2,8 +2,6 @@
 #include "networkfinder.h"
 #include "map.h"
 
-#include <iostream>
-
 using namespace AStarCities;
 
 NetworkFinder::NetworkFinder(const Map& map) {
@@ -51,6 +49,9 @@ std::size_t NetworkFinder::getNetworkNodeCount(const RoadNetwork& network) {
     return nodeCount;
 }
 
+// TODO: The recursive implementation might be a problem.
+//       For large maps the stack can become very large.
+//       It is necessary to increase the default stack size on compilation
 void NetworkFinder::getNetwork(NetworkNode& node, Network& network) {
 
     // check if the intersection is allready part of the network
