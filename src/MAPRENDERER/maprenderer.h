@@ -30,7 +30,7 @@ namespace AStarCities {
             MapRenderer();
             virtual ~MapRenderer() = default;
 
-            void openWindow();
+            void openWindow(uint32_t width, uint32_t height);
 
             void setBackgroundColor(sf::Color color) { backgroundColor = color; }
             void setBoundingBoxColor(sf::Color color) { boundingBoxColor = color; }
@@ -61,6 +61,8 @@ namespace AStarCities {
             void drawInterchanges();
             void drawInterchange(const Intersection& inter);
 
+            void fadeRoads();
+
             void translate(float x, float y);
 
             std::shared_ptr<sf::RenderWindow> window;
@@ -75,15 +77,18 @@ namespace AStarCities {
 
             std::vector<sf::Vertex> boundingBox;
 
-            bool dragMouse = false;
-            int oldX = 0;
-            int oldY = 0;
-            float zoom = 1.0f;
-
             bool showBuildings    = true;
             bool showRoads        = true;
             bool showBoundingBox  = false;
             bool showInterchanges = false;
+
+            uint32_t resWidth;
+            uint32_t resHeight;
+
+            bool dragMouse = false;
+            int oldX = 0;
+            int oldY = 0;
+            float zoom = 1.0f;
 
             sf::Color backgroundColor  = sf::Color(10, 10, 10);
             sf::Color boundingBoxColor = sf::Color(255, 0, 0);
@@ -96,7 +101,5 @@ namespace AStarCities {
             static constexpr float INTERSECTION_MARKER_SIZE = 1;
 
             sf::CircleShape intersectionCircle{INTERSECTION_MARKER_SIZE};
-
-            int doSteps = 0;
     };
 }

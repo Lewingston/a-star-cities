@@ -30,11 +30,14 @@ MapRenderer::MapRenderer() {
     intersectionCircle.setFillColor(sf::Color(255, 255, 255));
 }
 
-void MapRenderer::openWindow() {
+void MapRenderer::openWindow(uint32_t width, uint32_t height) {
 
-    globalTransform.translate(sf::Vector2f(500, 150));
+    //globalTransform.translate(sf::Vector2f(500, 150));
 
-    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(2000u, 1300u)), "A* Cities"));
+    resWidth = width;
+    resHeight = height;
+
+    window = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(sf::Vector2(width, height)), "A* Cities"));
     window->setFramerateLimit(60);
     window->clear(sf::Color::White);
     window->display();
@@ -55,6 +58,11 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
     }
 
     createBoundingBox(static_cast<float>(map->getLocalWidth()), static_cast<float>(map->getLocalHeight()));
+
+    const float translateX = (static_cast<float>(map->getLocalWidth()) - static_cast<float>(resWidth)) / 2;
+    const float translateY = (static_cast<float>(map->getLocalHeight()) - static_cast<float>(resHeight)) / 2;
+
+    globalTransform.translate(sf::Vector2f(-translateX, -translateY));
 }
 
 void MapRenderer::setSolver(std::shared_ptr<Solver> solver) {
@@ -115,30 +123,13 @@ void MapRenderer::doSolutionStep() {
     if (!solver)
         return;
 
-    for (RoadRenderer& road : whiteRoads) {
-
-        sf::Color targetColor = roadColorMap[road.getRoad().getType()];
-        double color = road.getColor();
-
-        if (solver->isDone())
-            color = targetColor.r + (color - targetColor.r) * 0.99;
-        else
-            color = targetColor.r + (color - targetColor.r) * 0.998;
-
-        if (color < targetColor.r) {
-            whiteRoads.erase(road);
-            road.setColor(targetColor);
-        } else {
-            road.setColor(color);
-        }
-    }
+    fadeRoads();
 
     if (solver->isDone())
         return;
 
-    //doSteps++;
-    int doSteps = 1 + (solver->getOpenListSize() / 20);
-    for (int ii = 0; ii < doSteps; ii++) {
+    std::size_t doSteps = 1 + (solver->getOpenListSize() / 20);
+    for (std::size_t ii = 0; ii < doSteps; ii++) {
 
         Road const* road = nullptr;
         while (road == nullptr && !solver->isDone()) {
@@ -159,8 +150,6 @@ void MapRenderer::doSolutionStep() {
             whiteRoads.insert(roadRenderer);
         }
     }
-
-    //solver->printOpenList();
 }
 
 void MapRenderer::handleEvents() {
@@ -192,7 +181,7 @@ void MapRenderer::handleEvents() {
 void MapRenderer::handleKeyPress(const sf::Event& event) {
     switch (event.key.code) {
         case sf::Keyboard::Enter:
-            doSolutionStep();
+            //doSolutionStep();
             break;
         case sf::Keyboard::R:
         case sf::Keyboard::S:
@@ -280,11 +269,6 @@ void MapRenderer::drawMap() {
     if (solver) {
         drawInterchange(solver->getStart());
         drawInterchange(solver->getEnd());
-
-        /*intersectionCircle.setFillColor(sf::Color(0, 200, 0));
-        for (const Intersection& inter : solver->getOpenListIntersections()) {
-            drawInterchange(inter);
-        }*/
     }
 
     window->display();
@@ -300,4 +284,25 @@ void MapRenderer::drawInterchange(const Intersection& intersection) {
     auto [posX, posY] = intersection.getPosition();
     intersectionCircle.setPosition(sf::Vector2f(static_cast<float>(posX) - INTERSECTION_MARKER_SIZE, static_cast<float>(posY) - INTERSECTION_MARKER_SIZE));
     window->draw(intersectionCircle, globalTransform);
+}
+
+void MapRenderer::fadeRoads() {
+
+    for (RoadRenderer& road : whiteRoads) {
+
+        sf::Color targetColor = roadColorMap[road.getRoad().getType()];
+        double color = road.getColor();
+
+        if (solver->isDone())
+            color = targetColor.r + (color - targetColor.r) * 0.99;
+        else
+            color = targetColor.r + (color - targetColor.r) * 0.998;
+
+        if (color < targetColor.r) {
+            whiteRoads.erase(road);
+            road.setColor(targetColor);
+        } else {
+            road.setColor(color);
+        }
+    }
 }
