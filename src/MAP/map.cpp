@@ -136,6 +136,7 @@ std::unique_ptr<Map> Map::getMainNetwork() const {
         }
     }
 
+    map->setReferenceResolution(refWidth, refHeight);
     map->setGlobalBounds(minLatitude, maxLatitude, minLongitude, maxLongitude);
     for (const Road& road : mainNetwork) {
         map->addRoad(road);
