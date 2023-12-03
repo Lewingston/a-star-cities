@@ -6,6 +6,11 @@
 
 using namespace AStarCities;
 
+void Map::setReferenceResolution(uint32_t width, uint32_t height) {
+    refWidth = width;
+    refHeight = height;
+}
+
 void Map::setGlobalBounds(double minlat, double maxlat, double minlon, double maxlon) {
 
     minLatitude = minlat;
@@ -13,14 +18,15 @@ void Map::setGlobalBounds(double minlat, double maxlat, double minlon, double ma
     minLongitude = minlon;
     maxLongitude = maxlon;
 
-    static constexpr double refSize = 1000;
+    const double refWidth = static_cast<double>(this->refWidth);
+    const double refHeight = static_cast<double>(this->refHeight);
 
-    if (getGlobalWidth() > getGlobalHeight()) {
-        localWidth = refSize;
-        localHeight = refSize * (getGlobalHeight() / getGlobalWidth());
+    if (refWidth / refHeight < getGlobalWidth() / getGlobalHeight()) {
+        localWidth = refWidth;
+        localHeight = refWidth * (getGlobalHeight() / getGlobalWidth());
     } else {
-        localWidth = refSize * (getGlobalWidth() / getGlobalHeight());
-        localHeight = refSize;
+        localWidth = refHeight * (getGlobalWidth() / getGlobalHeight());
+        localHeight = refHeight;
     }
 
     std::cout << "Map - global dimensions: " << getGlobalWidth() << " " << getGlobalHeight() << std::endl;

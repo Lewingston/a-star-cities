@@ -19,6 +19,7 @@ namespace AStarCities {
             Map() = default;
             virtual ~Map() = default;
 
+            void setReferenceResolution(uint32_t width, uint32_t height);
             void setGlobalBounds(double minlat, double maxlat, double minlon, double maxlon);
 
             [[nodiscard]] const std::map<uint64_t, Node>&         getNodes()         const noexcept { return nodes; }
@@ -64,6 +65,9 @@ namespace AStarCities {
 
             double localWidth;
             double localHeight;
+
+            uint32_t refWidth = 1600;
+            uint32_t refHeight = 900;
 
             std::map<uint64_t, Node> nodes;
             std::map<uint64_t, Road> roads;
