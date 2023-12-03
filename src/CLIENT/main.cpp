@@ -103,11 +103,14 @@ void richMap(const std::string& filePath) {
 
     renderer.setBuildingColor(BuildingType::YES, sf::Color(128, 128, 128));
 
-    renderer.openWindow();
+    constexpr uint32_t WIDTH = 1600;
+    constexpr uint32_t HEIGHT = 900;
+
+    renderer.openWindow(WIDTH, HEIGHT);
 
     MapParser parser;
     parser.parseRoadTypes(RoadType::getAll());
-    parser.parseMap(parser.loadFromFile(filePath));
+    parser.parseMap(parser.loadFromFile(filePath), WIDTH, HEIGHT);
 
     renderer.setMap(parser.getMap());
     renderer.runSimulation();
@@ -131,7 +134,10 @@ void pathMap(const std::string& filePath) {
     renderer.setRoadColor(RoadType::MOTORWAY,       sf::Color(30, 30, 30));
     renderer.setRoadColor(RoadType::MOTORWAY_LINK,  sf::Color(30, 30, 30));
 
-    renderer.openWindow();
+    constexpr uint32_t WIDTH = 1600;
+    constexpr uint32_t HEIGHT = 900;
+
+    renderer.openWindow(WIDTH, HEIGHT);
 
     std::set<RoadType> roadTypes;
     roadTypes.insert(RoadType::MOTORWAY);
@@ -151,7 +157,7 @@ void pathMap(const std::string& filePath) {
     MapParser parser;
     parser.parseRoadTypes(roadTypes);
     parser.parseBuildings(false);
-    parser.parseMap(parser.loadFromFile(filePath));
+    parser.parseMap(parser.loadFromFile(filePath), WIDTH, HEIGHT);
 
     std::shared_ptr<Map> map = parser.getMap();
     map->analyseRoadNetwork();
