@@ -21,6 +21,10 @@ namespace AStarCities {
 
             void setLocalPosition(std::pair<double, double> pos) { posX = pos.first; posY = pos.second; }
 
+            [[nodiscard]] double localDistance(const Node& node) const;
+            [[nodiscard]] double globalDistance(const Node& node) const;
+
+
         private:
 
             uint64_t id;
