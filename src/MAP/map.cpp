@@ -143,6 +143,8 @@ std::unique_ptr<Map> Map::getMainNetwork() const {
         std::cerr << "Mpa - Warning: More then 1/3 of nodes removed from main network. Maybe there is a problem.\n";
     }
 
+    map->analyseRoadNetwork();
+
     return map;
 }
 

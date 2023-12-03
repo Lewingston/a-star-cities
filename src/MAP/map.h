@@ -33,7 +33,6 @@ namespace AStarCities {
             void addBuilding(const Building& building);
 
             void analyseRoadNetwork();
-            void findIntersections();
 
             std::unique_ptr<Map> getMainNetwork() const;
 
@@ -47,6 +46,7 @@ namespace AStarCities {
             std::vector<std::reference_wrapper<const Node>> addNodes(const std::vector<std::reference_wrapper<const Node>>& nodes);
             const Node* addNode(const Node& node);
 
+            void findIntersections();
             void splitRoadsOnIntersections();
             void fuseRoads();
             void setIntersectionsToEndOfRoads();
