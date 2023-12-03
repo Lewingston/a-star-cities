@@ -29,9 +29,10 @@ void MapParser::parseRoadTypes(const std::set<RoadType> types) {
     allowedRoadTypes = types;
 }
 
-void MapParser::parseMap(const std::string& mapData) {
+void MapParser::parseMap(const std::string& mapData, uint32_t refWidth, uint32_t refHeight) {
 
     map = std::shared_ptr<Map>(new Map());
+    map->setReferenceResolution(refWidth, refHeight);
 
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_string(mapData.c_str());

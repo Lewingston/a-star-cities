@@ -26,7 +26,7 @@ namespace AStarCities {
 
             [[nodiscard]] std::string loadFromFile(const std::string& filePath) const;
 
-            void parseMap(const std::string& mapData);
+            void parseMap(const std::string& mapData, uint32_t refWidth = 1600, uint32_t reHeight = 900);
 
             std::shared_ptr<Map> getMap() const { return map; }
 
