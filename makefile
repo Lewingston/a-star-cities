@@ -94,7 +94,8 @@ SFML_LINKER_FLAGS = -L$(SFML_DIR)lib \
 
 LINKER_FLAGS = $(SFML_LINKER_FLAGS) \
                -static-libgcc \
-               -static-libstdc++
+               -static-libstdc++ \
+               -Wl,--stack,16000000
 
 ################################################################################
 #                               BUILD RULES                                    #
