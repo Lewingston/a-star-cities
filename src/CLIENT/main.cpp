@@ -156,12 +156,11 @@ void pathMap(const std::string& filePath) {
     std::shared_ptr<Map> map = parser.getMap();
     map->analyseRoadNetwork();
     map = map->getMainNetwork();
-    map->findIntersections();
 
     const auto& [start, end] = Solver::selectStartAndEndIntersection(map);
+    std::shared_ptr<Solver> solver = std::shared_ptr<Solver>(new Solver(map, start, end));
 
     renderer.setMap(map);
-    renderer.setStartPoint(start);
-    renderer.setEndPoint(end);
+    renderer.setSolver(solver);
     renderer.runSimulation();
 }
