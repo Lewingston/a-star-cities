@@ -1,15 +1,29 @@
 # a-star-cities
 
-Project is currently work in progress.
-
-The current implementation is just a simple custom renderer for open street map data.
+Visualisation of  A* path finding algorithm usign open street map data.
 
 The map data can be downloaded via the [open street map API](https://wiki.openstreetmap.org/wiki/Downloading_data).
 The data must then be saved as .osm file to be used by the program.
 
-## Example
+Inspired by this [video](https://www.youtube.com/watch?v=CgW0HPHqFE8).
 
-![Screenshot](docs/screenshot1.PNG)
+## Usage
+
+Pass the osm map data as program parameter.
+
+```
+astarcities.exe mapdata.osm
+```
+
+## Demo
+
+![Demo](docs/astar_demo.gif)
+
+## Known Issues
+
+Large mpas leads to very bad performance.
+
+Very largs maps might lead to a crash of the program due to not enough stack memory.
 
 ## Dependencies
 
