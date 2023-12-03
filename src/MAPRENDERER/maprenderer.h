@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
 namespace sf {
     class RenderWindow;
@@ -20,6 +21,7 @@ namespace AStarCities {
 
     class Map;
     class Intersection;
+    class Solver;
 
     class MapRenderer {
 
@@ -39,12 +41,13 @@ namespace AStarCities {
             void setBuildingColor(const std::set<BuildingType>& types, sf::Color color);
 
             void setMap(std::shared_ptr<Map> map);
-            void setStartPoint(const Intersection& start) { startInter = &start; }
-            void setEndPoint(const Intersection& end) { endInter = &end; }
+            void setSolver(std::shared_ptr<Solver> solver);
 
             void runSimulation();
 
         private:
+
+            void doSolutionStep();
 
             void createBoundingBox(float width, float height);
 
@@ -63,8 +66,9 @@ namespace AStarCities {
             std::shared_ptr<sf::RenderWindow> window;
 
             std::shared_ptr<Map> map;
+            std::shared_ptr<Solver> solver;
 
-            std::vector<RoadRenderer> roads;
+            std::map<uint64_t, RoadRenderer> roads;
             std::vector<BuildingRenderer> buildings;
 
             sf::Transform globalTransform;
@@ -87,11 +91,12 @@ namespace AStarCities {
             std::map<RoadType, sf::Color> roadColorMap;
             std::map<BuildingType, sf::Color> buildingColorMap;
 
-            Intersection const* startInter = nullptr;
-            Intersection const* endInter   = nullptr;
+            std::set<std::reference_wrapper<RoadRenderer>, std::less<RoadRenderer>> whiteRoads;
 
             static constexpr float INTERSECTION_MARKER_SIZE = 1;
 
             sf::CircleShape intersectionCircle{INTERSECTION_MARKER_SIZE};
+
+            int doSteps = 0;
     };
 }

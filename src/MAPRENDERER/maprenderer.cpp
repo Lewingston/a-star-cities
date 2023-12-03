@@ -3,6 +3,8 @@
 
 #include "MAP/map.h"
 
+#include "SOLVER/solver.h"
+
 #include "SFML/Window/VideoMode.hpp"
 #include "SFML/Window/Event.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
@@ -44,7 +46,7 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
 
     for (const auto& pair : map->getRoads()) {
         const Road& road = pair.second;
-        roads.push_back(RoadRenderer(road, roadColorMap[road.getType()]));
+        roads.insert({road.getId(), RoadRenderer(road, roadColorMap[road.getType()])});
     }
 
     for (const auto& pair : map->getBuildings()) {
@@ -53,6 +55,10 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
     }
 
     createBoundingBox(static_cast<float>(map->getLocalWidth()), static_cast<float>(map->getLocalHeight()));
+}
+
+void MapRenderer::setSolver(std::shared_ptr<Solver> solver) {
+    this->solver = solver;
 }
 
 void MapRenderer::setRoadColor(RoadType type, sf::Color color) {
@@ -99,7 +105,62 @@ void MapRenderer::runSimulation() {
         handleEvents();
 
         drawMap();
+
+        doSolutionStep();
     }
+}
+
+void MapRenderer::doSolutionStep() {
+
+    if (!solver)
+        return;
+
+    for (RoadRenderer& road : whiteRoads) {
+
+        sf::Color targetColor = roadColorMap[road.getRoad().getType()];
+        double color = road.getColor();
+
+        if (solver->isDone())
+            color = targetColor.r + (color - targetColor.r) * 0.99;
+        else
+            color = targetColor.r + (color - targetColor.r) * 0.998;
+
+        if (color < targetColor.r) {
+            whiteRoads.erase(road);
+            road.setColor(targetColor);
+        } else {
+            road.setColor(color);
+        }
+    }
+
+    if (solver->isDone())
+        return;
+
+    //doSteps++;
+    int doSteps = 1 + (solver->getOpenListSize() / 20);
+    for (int ii = 0; ii < doSteps; ii++) {
+
+        Road const* road = nullptr;
+        while (road == nullptr && !solver->isDone()) {
+            road = solver->doSubStep();
+        }
+
+        if (road != nullptr) {
+            RoadRenderer& roadRenderer = roads.find(road->getId())->second;
+            roadRenderer.setColor(255);
+            whiteRoads.insert(roadRenderer);
+        }
+    }
+
+    if (solver->isDone()) {
+        for (const Road& road : solver->getSolution()) {
+            RoadRenderer& roadRenderer = roads.find(road.getId())->second;
+            roadRenderer.setColor(1'000'000);
+            whiteRoads.insert(roadRenderer);
+        }
+    }
+
+    //solver->printOpenList();
 }
 
 void MapRenderer::handleEvents() {
@@ -131,6 +192,7 @@ void MapRenderer::handleEvents() {
 void MapRenderer::handleKeyPress(const sf::Event& event) {
     switch (event.key.code) {
         case sf::Keyboard::Enter:
+            doSolutionStep();
             break;
         case sf::Keyboard::R:
         case sf::Keyboard::S:
@@ -196,7 +258,7 @@ void MapRenderer::drawMap() {
     window->clear(backgroundColor);
 
     if (showRoads) {
-        for (RoadRenderer& road : roads) {
+        for (const auto& [id, road] : roads) {
             road.draw(window, globalTransform);
         }
     }
@@ -215,12 +277,14 @@ void MapRenderer::drawMap() {
         drawInterchanges();
     }
 
-    if (startInter != nullptr) {
-        drawInterchange(*startInter);
-    }
+    if (solver) {
+        drawInterchange(solver->getStart());
+        drawInterchange(solver->getEnd());
 
-    if (endInter != nullptr) {
-        drawInterchange(*endInter);
+        /*intersectionCircle.setFillColor(sf::Color(0, 200, 0));
+        for (const Intersection& inter : solver->getOpenListIntersections()) {
+            drawInterchange(inter);
+        }*/
     }
 
     window->display();
