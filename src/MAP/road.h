@@ -32,11 +32,16 @@ namespace AStarCities {
             [[nodiscard]] const Node& getStartNode() const { return nodes.begin()->get(); }
             [[nodiscard]] const Node& getEndNode() const { return (nodes.end() - 1)->get(); }
 
+            [[nodiscard]] double getGlobalLength() const { return globalLength; }
+            [[nodiscard]] double getLocalLength()  const { return localLength; }
+
             [[nodiscard]] std::pair<const Intersection&, const Intersection&> getIntersections() const;
 
             [[nodiscard]] const std::vector<std::reference_wrapper<const Node>>& getNodes() const { return nodes; }
 
         private:
+
+            [[nodiscard]] double calculateLength(bool global) const;
 
             uint64_t id;
 
@@ -45,6 +50,9 @@ namespace AStarCities {
             RoadType type;
 
             std::vector<std::reference_wrapper<const Node>> nodes;
+
+            double localLength;
+            double globalLength;
 
             Intersection* startIntersection = nullptr;
             Intersection* endIntersection = nullptr;
