@@ -32,8 +32,6 @@ MapRenderer::MapRenderer() {
 
 void MapRenderer::openWindow(uint32_t width, uint32_t height) {
 
-    //globalTransform.translate(sf::Vector2f(500, 150));
-
     resWidth = width;
     resHeight = height;
 
@@ -46,6 +44,8 @@ void MapRenderer::openWindow(uint32_t width, uint32_t height) {
 void MapRenderer::setMap(std::shared_ptr<Map> map) {
 
     this->map = map;
+
+    std::map<uint64_t, std::pair<uint32_t, std::reference_wrapper<const Node>>> nodeIndexMap;
 
     for (const auto& pair : map->getRoads()) {
         const Road& road = pair.second;
@@ -66,6 +66,8 @@ void MapRenderer::setMap(std::shared_ptr<Map> map) {
 }
 
 void MapRenderer::setSolver(std::shared_ptr<Solver> solver) {
+
+    timer = std::chrono::steady_clock::now(); // reset timer for animations
     this->solver = solver;
 }
 
@@ -114,21 +116,39 @@ void MapRenderer::runSimulation() {
 
         drawMap();
 
-        doSolutionStep();
+        animateSolution();
     }
 }
 
-void MapRenderer::doSolutionStep() {
+void MapRenderer::animateSolution() {
 
     if (!solver)
         return;
 
     fadeRoads();
 
+    if (solver->isDone()) {
+        // wait for a few seconds before running a new path
+        if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timer) >= std::chrono::seconds(8)) {
+            //resetWhiteRoads();
+            const auto& [start, end] = Solver::selectStartAndEndIntersection(map);
+            std::shared_ptr<Solver> solver = std::shared_ptr<Solver>(new Solver(map, start, end));
+            setSolver(solver);
+        }
+    } else {
+        // wait a short time before starting animation
+        if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - timer) >= std::chrono::seconds(2)) {
+            doSolutionStep();
+        }
+    }
+}
+
+void MapRenderer::doSolutionStep() {
+
     if (solver->isDone())
         return;
 
-    std::size_t doSteps = 1 + (solver->getOpenListSize() / 20);
+    std::size_t doSteps = 1 + (solver->getOpenListSize() / 15);
     for (std::size_t ii = 0; ii < doSteps; ii++) {
 
         Road const* road = nullptr;
@@ -144,9 +164,13 @@ void MapRenderer::doSolutionStep() {
     }
 
     if (solver->isDone()) {
+
+        // reset timer
+        timer = std::chrono::steady_clock::now();
+
         for (const Road& road : solver->getSolution()) {
             RoadRenderer& roadRenderer = roads.find(road.getId())->second;
-            roadRenderer.setColor(1'000'000);
+            roadRenderer.setColor(3000);
             whiteRoads.insert(roadRenderer);
         }
     }
@@ -296,7 +320,7 @@ void MapRenderer::fadeRoads() {
         if (solver->isDone())
             color = targetColor.r + (color - targetColor.r) * 0.99;
         else
-            color = targetColor.r + (color - targetColor.r) * 0.998;
+            color = targetColor.r + (color - targetColor.r) * 0.997;
 
         if (color < targetColor.r) {
             whiteRoads.erase(road);
@@ -305,4 +329,12 @@ void MapRenderer::fadeRoads() {
             road.setColor(color);
         }
     }
+}
+
+void MapRenderer::resetWhiteRoads() {
+
+    for (RoadRenderer& road : whiteRoads) {
+        road.setColor(roadColorMap[road.getRoad().getType()]);
+    }
+    whiteRoads.clear();
 }

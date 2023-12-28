@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include <chrono>
 
 namespace sf {
     class RenderWindow;
@@ -47,6 +48,7 @@ namespace AStarCities {
 
         private:
 
+            void animateSolution();
             void doSolutionStep();
 
             void createBoundingBox(float width, float height);
@@ -62,6 +64,7 @@ namespace AStarCities {
             void drawInterchange(const Intersection& inter);
 
             void fadeRoads();
+            void resetWhiteRoads();
 
             void translate(float x, float y);
 
@@ -97,6 +100,8 @@ namespace AStarCities {
             std::map<BuildingType, sf::Color> buildingColorMap;
 
             std::set<std::reference_wrapper<RoadRenderer>, std::less<RoadRenderer>> whiteRoads;
+
+            std::chrono::steady_clock::time_point timer = std::chrono::steady_clock::now();
 
             static constexpr float INTERSECTION_MARKER_SIZE = 1;
 
